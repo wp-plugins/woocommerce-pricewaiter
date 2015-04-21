@@ -104,7 +104,11 @@ class WC_PriceWaiter_API_Ipn {
         // Custom holds post ID
         if ( ! empty( $posted['pricewaiter_id'] ) && ! empty( $posted['api_key'] ) ) {
 
-            // Check if this order was already created.
+            // Check if this order was already created. Bail if it was
+            if ( $this->order_already_exists( $posted['pricewaiter_id'] ) ) {
+                wp_die( "PriceWaiter Order Already Exists - {$posted[pricewaiter_id]}", "PriceWaiter IPN", array( 'response' => 200 ) );
+            }
+
 
             // Check if the customer has an account
             $customer = get_user_by( 'email', $posted['buyer_email'] );
@@ -243,6 +247,35 @@ class WC_PriceWaiter_API_Ipn {
         }
 
         exit;
+
+    }
+
+    /**
+     * Check if a PriceWaiter order exists already
+     *
+     * @param string $pricewaiter_id
+     */
+    public function order_already_exists( $pricewaiter_id ) {
+        
+        $args = array(
+            'post_type' => 'shop_order',
+            'post_status' => 'any',
+            'meta_key' => '_pw_pricewaiter_id',
+            'posts_per_page' => '-1',
+            'meta_query' => array(
+                array(
+                    'key'     => '_pw_pricewaiter_id',
+                    'value'   => $pricewaiter_id,
+                    'compare' => '='
+                )
+            )
+        );
+
+        $my_query = new WP_Query($args);
+
+        wp_reset_postdata();
+
+        return ($my_query->found_posts) ? true : false;
 
     }
 }
