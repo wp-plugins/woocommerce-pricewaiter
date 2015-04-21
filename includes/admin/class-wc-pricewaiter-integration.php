@@ -39,6 +39,11 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	*
 	*/
 	public function alert_admin_to_configure() {
+
+		// Don't nag if we're on the integrations tab
+		if (isset($_GET['tab']) && 'integration' === $_GET['tab']) {
+			return;
+		}
 		?>
 		<div class="update-nag">
 			<p>
