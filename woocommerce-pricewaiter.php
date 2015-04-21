@@ -127,11 +127,25 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_action( 'admin_notices', 'alert_woocommerce_required' );
 }
 
+/**
+* This should only fire once after activation
+* intended to make sure flush_rewrite_rules fires
+* just after the plugin is activated.
+* The traditional activation hook fires too soon.
+*/
+function wc_pricewaiter_after_activation() {
+	if( get_option( 'wc_pricewaiter_flush_activation_rules_flag' ) ) {
+		delete_option( 'wc_pricewaiter_flush_activation_rules_flag' );
+		flush_rewrite_rules();
+	}
+}
 function wc_pricewaiter_activated() {
-	flush_rewrite_rules();
+	add_option( 'wc_pricewaiter_flush_activation_rules_flag', true );
 }
 function wc_pricewaiter_deactivated() {
 	flush_rewrite_rules();
 }
+// Priority needs to always be after the api init action
+add_action( 'init', 'wc_pricewaiter_after_activation', 20 );
 register_activation_hook( __FILE__, 'wc_pricewaiter_activated' );
-register_activation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
+register_deactivation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
