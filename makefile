@@ -2,6 +2,7 @@
 # Makefile
 #
 zip:
+	cp README.md readme.txt
 	zip -r woocommerce-pricewaiter.zip ./ \
 	-x '.*' \
 	-x '*~' \
