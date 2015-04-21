@@ -51,7 +51,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					PriceWaiterOptions.addToPage 	= <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
 					PriceWaiterOptions.user = {
 						email: 	'<?php echo $current_user->user_email; ?>',
-						name: 	'<?php echo $current_user->user_firstname . " " . $current_user->user_lastname; ?>'
+						name: 	'<?php echo esc_attr($current_user->user_firstname) . " " . esc_attr($current_user->user_lastname); ?>'
 					};
 					PriceWaiterOptions.hide_quantity_field = <?php echo $product->is_sold_individually() ? 'true' : 'false'; ?>;
 					PriceWaiterOptions.onButtonClick = function() {
