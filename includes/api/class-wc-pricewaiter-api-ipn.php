@@ -24,6 +24,8 @@ class WC_PriceWaiter_API_Ipn {
 
     protected $debug = false;
 
+    protected $test_order = false;
+
     /**
      * Setup class
      */
@@ -52,7 +54,7 @@ class WC_PriceWaiter_API_Ipn {
         }
 
         // Get received values from post data
-        $validate_ipn = $ipn_response; // stripslashes_deep( $ipn_response );
+        $validate_ipn = stripslashes_deep( $ipn_response );
 
         // Send back post vars to PriceWaiter
         $params = array(
@@ -115,6 +117,11 @@ class WC_PriceWaiter_API_Ipn {
     public function successful_request( $posted ) {
         $posted = stripslashes_deep( $posted );
 
+        // Flag test orders
+        if ( $posted['test'] && '1' === $posted['test'] ) {
+            $this->test_order = true;
+        }
+
         // Custom holds post ID
         if ( ! empty( $posted['pricewaiter_id'] ) && ! empty( $posted['api_key'] ) ) {
 
@@ -132,11 +139,22 @@ class WC_PriceWaiter_API_Ipn {
             
             // Create the order record
             $order_args = array(
-                'status'        => 'processing', // '' (is default)
+                'status'        => ( $this->test_order ) ? 'cancelled' : 'processing', // '' (is default)
                 'customer_id'   => ( $customer === false ) ? null : $customer->ID
             );
 
             $order = wc_create_order($order_args);
+
+            // Ensure order written
+            if ( is_wp_error( $order ) ) {
+                $this->log->add( 'pricewaiter-ipn', 'Order Creation Failed! Error: ' . $order->get_error_message() );
+                exit;
+            }
+
+            // Log order creation success
+            if ( $this->debug ) {
+                $this->log->add( 'pricewaiter-ipn', 'Order Created. Order # ' . $order->id );
+            }
 
             // Handle product line items
             $product = get_product( $posted['product_sku'] );
@@ -243,8 +261,16 @@ class WC_PriceWaiter_API_Ipn {
             update_post_meta( $order->id, '_payment_method_title', 'PriceWaiter' );
 
             // Reduce Stock level if we're supposed to
-            if ( apply_filters( 'woocommerce_payment_complete_reduce_order_stock', true, $order->id ) ) {
+            if ( !$this->test_order && apply_filters( 'woocommerce_payment_complete_reduce_order_stock', true, $order->id ) ) {
                 $order->reduce_order_stock(); // Payment is complete so reduce stock levels
+            }
+
+            if ( $this->test_order ) {
+                $order->add_order_note( 'This was a PriceWaiter "test" order.' );
+
+                if ( $this->debug ) {
+                    $this->log->add( 'pricewaiter-ipn', 'Order Flagged as "TEST" and set to status of "cancelled". Order # ' . $order->id );
+                }
             }
         }
 
