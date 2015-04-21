@@ -19,7 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WC_PriceWaiter_API_Ipn {
-
     /** @var string $endpoint the IPN endpoint */
     protected $endpoint = 'https://api.pricewaiter.com/order/verify';
 
@@ -27,17 +26,14 @@ class WC_PriceWaiter_API_Ipn {
      * Setup class
      */
     public function __construct() {
-
         // Payment listener/API hook
         add_action( 'wc_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
-
     }
 
     /**
      * Check PriceWaiter IPN validity
      **/
     public function check_ipn_request_is_valid( $ipn_response ) {
-
         // Allow custom endpoint for dev
         $this->endpoint = apply_filters( 'wc_pricewaiter_ipn_endpoint', $this->endpoint );
 
@@ -70,7 +66,6 @@ class WC_PriceWaiter_API_Ipn {
      * Check for PriceWaiter IPN Response
      */
     public function check_ipn_response() {
-
         @ob_clean();
 
         $ipn_response = ! empty( $_POST ) ? $_POST : false;
@@ -86,7 +81,6 @@ class WC_PriceWaiter_API_Ipn {
             wp_die( "PriceWaiter IPN Request Failure", "PriceWaiter IPN", array( 'response' => 404 ) );
 
         }
-
     }
 
     /**
@@ -95,7 +89,6 @@ class WC_PriceWaiter_API_Ipn {
      * @param array $posted
      */
     public function successful_request( $posted ) {
-
         $posted = stripslashes_deep( $posted );
 
         // Custom holds post ID
@@ -121,32 +114,28 @@ class WC_PriceWaiter_API_Ipn {
             $product = get_product( $posted['product_sku'] );
             $quantity = $posted['quantity'];
 
-
             // Variable Products
             $variant_attributes = array();
             if ( $product->variation_id ) {
                 $variant = new WC_Product_Variation( $posted['product_sku'] );
                 $variant_attributes = $variant->get_variation_attributes();
             }
-            
 
             $product_args = array(
                 'totals' => array(
-                    'subtotal' => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
-                    'total' => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
-                    'subtotal_tax' => 0,
-                    'tax' => 0
+                    'subtotal'      => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
+                    'total'         => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
+                    'subtotal_tax'  => 0,
+                    'tax'           => 0
                 ),
                 'variation' => $variant_attributes
             );
-
 
             // Remove all connected actions for adding a product
             // Prevent further down the line from adjusting pricing
             remove_all_actions( 'woocommerce_order_add_product', 1 );
 
             $order_item_id = $order->add_product( $product, $posted['quantity'], $product_args ); // $product, $qty = 1, $args = array()
-
 
             // FORCE FEED the shipping costs
             if ($posted['shipping'] > 0) {
@@ -159,7 +148,6 @@ class WC_PriceWaiter_API_Ipn {
                 wc_update_order_item_meta( $shipping_item_id, 'cost', $posted['shipping'] );
                 wc_update_order_item_meta( $shipping_item_id, 'method_id', 'pricewaiter_fixed_shipping' );
             }
-
 
             // FORCE FEED the sales tax items
             if ($posted['tax'] > 0) {
@@ -174,9 +162,6 @@ class WC_PriceWaiter_API_Ipn {
                 wc_update_order_item_meta( $tax_item_id, 'label', 'Tax' );
                 wc_update_order_item_meta( $tax_item_id, 'rate_id', 0 );
             }
-
-
-            
 
             // Create the order
             $address_billing = array(
@@ -207,11 +192,9 @@ class WC_PriceWaiter_API_Ipn {
                 'country'    => $posted['buyer_shipping_country']
             );
 
-
             // Handle customer data
             $order->set_address( $address_billing, 'billing' );
             $order->set_address( $address_shipping, 'shipping' );
-
 
             // Handle totals rows
             $order->set_total( 0, 'shipping_tax' );
@@ -219,7 +202,6 @@ class WC_PriceWaiter_API_Ipn {
             $order->set_total( 0, 'cart_discount' );
             $order->set_total( 0, 'order_discount' );
             $order->set_total( $posted['total'], 'total' );
-
 
             // Custom PriceWaiter order meta
             update_post_meta( $order->id, '_wc_pricewaiter_id', $posted['pricewaiter_id'] );
@@ -232,16 +214,13 @@ class WC_PriceWaiter_API_Ipn {
             update_post_meta( $order->id, '_payment_method', 'PriceWaiter (' . $posted['payment_method'] . ')' );
             update_post_meta( $order->id, '_payment_method_title', 'PriceWaiter' );
 
-
             // Reduce Stock level if we're supposed to
             if ( apply_filters( 'woocommerce_payment_complete_reduce_order_stock', true, $order->id ) ) {
                 $order->reduce_order_stock(); // Payment is complete so reduce stock levels
             }
-
         }
 
         exit;
-
     }
 
     /**
@@ -250,17 +229,16 @@ class WC_PriceWaiter_API_Ipn {
      * @param string $pricewaiter_id
      */
     public function order_already_exists( $pricewaiter_id ) {
-        
         $args = array(
-            'post_type' => 'shop_order',
-            'post_status' => 'any',
-            'meta_key' => '_wc_pricewaiter_id',
-            'posts_per_page' => '-1',
-            'meta_query' => array(
+            'post_type'         => 'shop_order',
+            'post_status'       => 'any',
+            'meta_key'          => '_wc_pricewaiter_id',
+            'posts_per_page'    => '-1',
+            'meta_query'        => array(
                 array(
-                    'key'     => '_wc_pricewaiter_id',
-                    'value'   => $pricewaiter_id,
-                    'compare' => '='
+                    'key'       => '_wc_pricewaiter_id',
+                    'value'     => $pricewaiter_id,
+                    'compare'   => '='
                 )
             )
         );
@@ -270,6 +248,5 @@ class WC_PriceWaiter_API_Ipn {
         wp_reset_postdata();
 
         return ($my_query->found_posts) ? true : false;
-
     }
 }

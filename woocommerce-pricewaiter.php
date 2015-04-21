@@ -54,7 +54,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 				// We version_compare() after plugins_loaded()
 				// to make sure we have access to WC()->version
-				if( version_compare( WC()->version, $wc_minimum_version ) < 0 ) {
+				if ( 0 > version_compare( WC()->version, $wc_minimum_version ) ) {
 					// Unsupported version
 					add_action( 'admin_notices' , array($this, 'alert_woocommerce_minimum_version') );
 					return;
@@ -83,12 +83,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			 * Include required core files used in admin and on the frontend.
 			 */
 			private function includes() {
-
 				// API Class
 				include_once( 'includes/class-wc-pricewaiter-api.php' );
-
 			}
-
 
 			public function add_pricewaiter_integration( $integrations ) {
 				$integrations[] = 'WC_PriceWaiter_Integration';
@@ -100,6 +97,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			*/
 			public function alert_woocommerce_minimum_version(){
 				global $wc_minimum_version;
+
 				?>
 					<div class="error">
 						<h3><?php _e( 'WooCommerce update required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h3>
@@ -113,9 +111,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$GLOBALS['wc_pricewaiter'] = new WC_PriceWaiter( __FILE__ );
 	}
 } else {
-
 	function alert_woocommerce_required() {
 		global $wc_minimum_version;
+
 		?>
 			<div class="error">
 				<h3>WooCommerce required to continue.</h2>
@@ -134,17 +132,20 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 * The traditional activation hook fires too soon.
 */
 function wc_pricewaiter_after_activation() {
-	if( get_option( 'wc_pricewaiter_flush_activation_rules_flag' ) ) {
+	if ( get_option( 'wc_pricewaiter_flush_activation_rules_flag' ) ) {
 		delete_option( 'wc_pricewaiter_flush_activation_rules_flag' );
 		flush_rewrite_rules();
 	}
 }
+
 function wc_pricewaiter_activated() {
 	add_option( 'wc_pricewaiter_flush_activation_rules_flag', true );
 }
+
 function wc_pricewaiter_deactivated() {
 	flush_rewrite_rules();
 }
+
 // Priority needs to always be after the api init action
 add_action( 'init', 'wc_pricewaiter_after_activation', 20 );
 register_activation_hook( __FILE__, 'wc_pricewaiter_activated' );

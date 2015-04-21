@@ -9,11 +9,11 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function __construct() {
 		global $woocommerce, $wc_pricewaiter;
 
-		$this->id 					= 'pricewaiter';
+		$this->id					= 'pricewaiter';
 		$this->method_title			= __( 'PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
 		$this->method_descrption	= __( 'Name your price through PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
-		$this->cost_plugin = array();
-		$this->messages = array();
+		$this->cost_plugin			= array();
+		$this->messages				= array();
 
 		/**
 		* Check for any supported plugins to use for cost/margin data
@@ -64,8 +64,8 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		$this->init_settings();
 
 		$this->api_key				= $this->get_option( 'api_key' );
-		$this->debug 				= $this->get_option( 'debug' );
-		$this->cost_plugin 			= apply_filters( 'wc_pricewaiter_cost_plugin_fields', $this->cost_plugin, $wc_pricewaiter->supported_cost_plugins );
+		$this->debug				= $this->get_option( 'debug' );
+		$this->cost_plugin			= apply_filters( 'wc_pricewaiter_cost_plugin_fields', $this->cost_plugin, $wc_pricewaiter->supported_cost_plugins );
 
 		// integration settings hooks
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
@@ -155,11 +155,11 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function generate_button_html( $key, $data ) {
 		$field = $this->plugin_id . $this->id . '_' . $key;
 		$defaults = array(
-			'class' 				=> 'button-secondary',
+			'class'					=> 'button-secondary',
 			'css'					=> '',
-			'custom_attributes' 	=> array(),
-			'desc_tip' 				=> false,
-			'description' 			=> '',
+			'custom_attributes'		=> array(),
+			'desc_tip'				=> false,
+			'description'			=> '',
 			'title'					=> ''
 		);
 
@@ -181,6 +181,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			</td>
 		</tr>
 		<?php
+
 		return ob_get_clean();
 	}
 
@@ -247,10 +248,10 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'wrapper_class'		=> $wrapper_class_string,
 				'label'				=> __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
 				'description'		=> __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
-
 			)
 		);
 	}
+
 	/**
 	 *	Save Disable PriceWaiter value for product
 	 */
@@ -264,7 +265,6 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools_disabled', $checkbox_conversion );
 	}
 
-
 	/**
 	* PriceWaiter 'cost' fields emulate Cost Of Goods meta fields for ease
 	* of transition to that specific plugin.
@@ -277,44 +277,50 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		global $wc_pricewaiter;
 
 		$wrapper_class_string = '';
+
 		foreach ($wc_pricewaiter->supported_product_types as $type) {
 			$wrapper_class_string .= 'show_if_' . $type . ' ';
 		}
+
 		woocommerce_wp_text_input(
 			array(
-				'id'                => '_wc_cog_cost',
-				'class'             => 'wc_input_price short',
+				'id'				=> '_wc_cog_cost',
+				'class'				=> 'wc_input_price short',
 				'wrapper_class'		=> $wrapper_class_string,
-				'label'             => sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'         => 'price',
+				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
+				'data_type'			=> 'price',
 			)
 		);
 	}
+
 	/**
 	* Add Cost field to variable product's 'General' tab
 	*/
 	public function add_cost_field_to_variable_product() {
 		woocommerce_wp_text_input(
 			array(
-				'id'                => '_wc_cog_cost_variable',
-				'class'             => 'wc_input_price short',
-				'wrapper_class'     => 'show_if_variable',
-				'label'             => sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'         => 'price',
-				'desc_tip'          => true,
-				'description'       => __( 'Default cost for product variations', WC_PriceWaiter::TEXT_DOMAIN ),
+				'id'				=> '_wc_cog_cost_variable',
+				'class'				=> 'wc_input_price short',
+				'wrapper_class'		=> 'show_if_variable',
+				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
+				'data_type'			=> 'price',
+				'desc_tip'			=> true,
+				'description'		=> __( 'Default cost for product variations', WC_PriceWaiter::TEXT_DOMAIN ),
 			)
 		);		
 	}
+
 	/**
 	* Add cost field to product variations under 'variations' tab for each.
 	*/
 	public function add_cost_field_to_product_variation( $loop, $variation_data, $variation ) {
 		$default_cost = get_post_meta( $variation->post_parent, '_wc_cog_cost_variable', true );
 		$cost = ( isset( $variation_data['_wc_cog_cost'][0] ) ) ? $variation_data['_wc_cog_cost'][0] : '';
+
 		if ( isset( $variation_data['_wc_cog_default_cost'][0] ) && $variation_data['_wc_cog_default_cost'][0] == 'yes' ) {
 			$cost = '';
 		}
+
 		?>
 			<tr>
 				<td>
@@ -332,15 +338,17 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	*/
 	public function save_simple_product_cost( $post_id ) {
 		$product_type = empty( $_POST['product-type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product-type'] ) );
+		
 		if ( $product_type !== 'variable' ) {
 			update_post_meta( $post_id, '_wc_cog_cost', stripcslashes( $_POST['_wc_cog_cost'] ) );
 		}
 	}
+
 	public function save_variable_product_cost( $post_id ) {
 		$default_cost = stripcslashes( $_POST['_wc_cog_cost_variable'] );
 		update_post_meta( $post_id, '_wc_cog_cost_variable', $default_cost );
-
 	}
+
 	public function save_product_variation_cost( $variation_id ) {
 		$default_cost = stripcslashes( $_POST['_wc_cog_cost_variable'] );
 
@@ -379,6 +387,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			'button'			=> get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
 			'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
 		);
+
 		return $product_data;
 	}
 
@@ -389,4 +398,5 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		new WC_PriceWaiter_Embed($this->api_key);
 	}
 }
+
 endif;

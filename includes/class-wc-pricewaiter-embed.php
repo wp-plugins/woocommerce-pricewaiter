@@ -2,6 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) { 
     exit; // Exit if accessed directly
 }
+
 if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 	class WC_PriceWaiter_Embed {
@@ -21,10 +22,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				* - allow developers to customize this priority
 				*/
 				add_action( 'wp_footer', array( $this, 'widget_scripts' ), apply_filters( 'wc_pricewaiter_widget_script_priority', 10) );
-
 			}
-
-			
 		}
 
 		/**
@@ -39,7 +37,6 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			}
 
 			return false;
-
 		}
 		
 		public function embed_code() {
@@ -123,13 +120,11 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			</script>
 			<?php
 			do_action( 'wc_pricewaiter_after_button' );
-
 		}
 
 		public function widget_scripts() {
 			echo '<script src="https://widget.pricewaiter.com/script/' . $this->api_key . '.js" async></script>';
 		}
-
 
 		public function add_button() {
 

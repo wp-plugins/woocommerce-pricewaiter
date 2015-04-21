@@ -21,7 +21,7 @@ class WC_PriceWaiter_Product {
 			'image'				=> has_post_thumbnail( $product->id ) ? wp_get_attachment_url( $product->get_image_id() ) : ''
 		);
 	}
-	
+
 	/**
 	* Gets select product meta to be passed to PriceWaiter
 	* @param WC_Product|int product object or product id
@@ -52,6 +52,7 @@ class WC_PriceWaiter_Product {
 		
 		return $product->is_purchasable() && !$pricewaiter_disabled ? 'true' : 'false';
 	}
+
 	/**
 	* Checks if current product has Conversion Tools Enabled
 	* @param WC_Product|int product object or product id

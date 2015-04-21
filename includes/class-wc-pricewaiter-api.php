@@ -14,16 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-
 class WC_PriceWaiter_API {
-
     const VERSION = 1;
 
     /**
      * Constructor for the gateway.
      */
     public function __construct() {
-
         // add query vars
         add_filter( 'query_vars', array( $this, 'add_query_vars'), 0 );
 
@@ -32,9 +29,7 @@ class WC_PriceWaiter_API {
 
         // handle wc-pricewaiter-api endpoint requests
         add_action( 'parse_request', array( $this, 'handle_api_requests' ), 0 );
-
     }
-
 
     /**
      * add_query_vars function.
@@ -48,6 +43,7 @@ class WC_PriceWaiter_API {
         $vars[] = 'pricewaiter-api';
         $vars[] = 'pricewaiter-api-method';
         $vars[] = 'pricewaiter-api-version';
+
         return $vars;
     }
 
@@ -59,7 +55,6 @@ class WC_PriceWaiter_API {
      * @return void
      */
     public function add_endpoint() {
-
         // REST API
         add_rewrite_rule( '^pricewaiter-api/([^/]*)/?','index.php?pricewaiter-api=1&pricewaiter-api-method=$matches[1]','top');
 
