@@ -72,9 +72,9 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'button',
 				'custom_attributes' => array(
-					'onclick'		=> "location.href='http://pricewaiter.com'"
+					'onclick'		=> "location.href='https://manage.pricewaiter.com'"
 				),
-				'description'		=> __( 'Customize the PriceWaiter button by going to your PriceWaiter account.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
 			)
 			// ,'debug'	=> array(
