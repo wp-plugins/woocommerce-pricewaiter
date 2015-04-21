@@ -234,6 +234,12 @@ class WC_PriceWaiter_API_Ipn {
             update_post_meta( $order->id, '_payment_method', 'PriceWaiter (' . $posted['payment_method'] . ')' );
             update_post_meta( $order->id, '_payment_method_title', 'PriceWaiter' );
 
+
+            // Reduce Stock level if we're supposed to
+            if ( apply_filters( 'woocommerce_payment_complete_reduce_order_stock', true, $order->id ) ) {
+                $order->reduce_order_stock(); // Payment is complete so reduce stock levels
+            }
+
         }
 
         exit;
