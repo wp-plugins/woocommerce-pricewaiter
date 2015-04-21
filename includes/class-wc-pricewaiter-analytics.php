@@ -88,6 +88,9 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 		 */
 		protected function pw_get_ecommerce_tracking_code( $order ) {
 
+			// Try to use the product sku (fallback to id)
+			$tracking_sku = ( !empty( $order['metadata_sku'] ) ) ? $order['metadata_sku'] : $order['product_sku'];
+
 			if ( 'ua' === $this->ecommerce_tracking ) {
 
 				$code = "
@@ -109,7 +112,7 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 
 				$code .= "'id': '" . esc_js( $order['pricewaiter_id'] ) . "',";
 				$code .= "'name': '" . esc_js( $order['product_name'] ) . "',";
-				$code .= "'sku': '" . esc_js( $order['product_sku'] ) . "',";
+				$code .= "'sku': '" . esc_js( $tracking_sku ) . "',";
 
 				// Variations
 				if ( isset($order['product_option_count']) ) {
@@ -151,7 +154,7 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 	_gaq.push(['_addItem',";
 
 				$code .= "'" . esc_js( $order['pricewaiter_id'] ) . "',";
-				$code .= "'" . esc_js( $order['product_sku'] ) . "',";
+				$code .= "'" . esc_js( $tracking_sku ) . "',";
 				$code .= "'" . esc_js( $order['product_name'] ) . "',";
 
 				// Variations
