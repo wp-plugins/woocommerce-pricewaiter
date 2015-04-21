@@ -4,16 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class WC_PriceWaiter_Costs {
 
 	public function __construct() {
+		global $wc_pricewaiter;
 		/*
 		* Default PriceWaiter cost fields
 		*/
-		wc_pricewaiter()->cost_plugin_fields = array(
+		$wc_pricewaiter->cost_plugin_fields = array(
 			'simple'			=> '_wc_cog_cost',
 			'variable'			=> '_wc_cog_cost_variable',
 			'variation'			=> '_wc_cog_cost'
 		);
 
-		wc_pricewaiter()->cost_plugin_fields = apply_filters( 'wc_pricewaiter_default_cost_pluign_fields', wc_pricewaiter()->cost_plugin_fields );
+		$wc_pricewaiter->cost_plugin_fields = apply_filters( 'wc_pricewaiter_default_cost_pluign_fields', $wc_pricewaiter->cost_plugin_fields );
 
 		/**
 		* Add cost text box to products
@@ -38,10 +39,11 @@ class WC_PriceWaiter_Costs {
 	* Add Cost field to simple product's 'General' tab
 	*/
 	public function add_cost_field_to_simple_product() {
+		global $wc_pricewaiter;
 
 		$wrapper_class_string = '';
 
-		foreach ( wc_pricewaiter()->supported_product_types as $type ) {
+		foreach ($wc_pricewaiter->supported_product_types as $type) {
 			$wrapper_class_string .= 'show_if_' . $type . ' ';
 		}
 

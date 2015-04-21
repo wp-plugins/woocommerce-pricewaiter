@@ -13,17 +13,18 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 
 // Minimum supported version of WooCommerce
-// $wc_minimum_version = '2.2.0';
+$wc_minimum_version = '2.2.0';
 
+// Standard check if WooCommerce is active
+if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/**
 	* New PriceWaiter
 	*/
 	if ( !class_exists( 'WC_PriceWaiter' ) ) {
-		final class WC_PriceWaiter {
+		class WC_PriceWaiter {
 			const VERSION = "0.0.1";
 			const PLUGIN_ID = 'pw';
 			const TEXT_DOMAIN = 'woocommerce-pricewaiter';
-			public $wc_minimum_version = '2.2.0';
 			/**
 			* Main array key is the plugins primary class.
 			* The class is checked to see if plugin is active.
@@ -45,15 +46,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				'variable',
 				'variation'
 			);
-			public $pricewaiter_settings;
-			protected static $_instance = null;
-
-			public static function instance() {
-				if( is_null( self::$_instance  ) ) {
-					self::$_instance = new self();
-				}
-				return self::$_instance;
-			}
 
 			public function __construct() {
 				add_action( 'plugins_loaded', array( $this, 'init' ) );
@@ -64,39 +56,33 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 				// We version_compare() after plugins_loaded()
 				// to make sure we have access to WC()->version
-				if ( !class_exists( 'WooCommerce' ) ) {
-					// WooCommerce not active
-					add_action( 'admin_notices' , array( $this, 'alert_woocommerce_required' ) );
-					return;
-				}
-				if ( version_compare( WC()->version, $this->wc_minimum_version, '<' ) ) {
+				if ( 0 > version_compare( WC()->version, $wc_minimum_version ) ) {
 					// Unsupported version
-					add_action( 'admin_notices' , array( $this, 'alert_woocommerce_minimum_version' ) );
+					add_action( 'admin_notices' , array($this, 'alert_woocommerce_minimum_version') );
 					return;
 				}
-
-				$this->pricewaiter_settings = get_option( 'woocommerce_pricewaiter_settings' );
-				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
-				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
 
 				// Include Required Files
 				$this->includes();
-				$this->setup_cost_plugin();
 
 				// Init API
 				$this->api = new WC_PriceWaiter_API();
-								
-				if ( !is_admin() && $this->get_pricewaiter_setting( 'setup_complete' ) ) {
-					/**
-					* Filter API product response to inject pricewaiter data
-					*/
-					add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
-					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
-				} else if ( is_admin() ) {
-					$this->product_settings = new WC_PriceWaiter_Product_Settings();
-					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
-				}
 
+				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
+				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
+
+				$this->setup_cost_plugin();
+
+				require_once( 'includes/class-wc-pricewaiter-product.php' );
+				require_once( 'includes/class-wc-pricewaiter-embed.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
+				add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
+				/**
+				* Filter API product response to inject pricewaiter data
+				*/
+				$this->product_settings = new WC_PriceWaiter_Product_Settings();
+				add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
 			}
 
 			/**
@@ -105,18 +91,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			private function includes() {
 				// API Class
 				include_once( 'includes/class-wc-pricewaiter-api.php' );
-				require_once( 'includes/class-wc-pricewaiter-product.php' );
-				require_once( 'includes/class-wc-pricewaiter-embed.php' );
-
-				if ( is_admin() ) {
-					$this->admin_includes();
-				}
-			}
-
-			private function admin_includes() {
-				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
-				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
-				require_once( 'includes/admin/class-wc-pricewaiter-integration-helpers.php' );
 			}
 
 			public function add_pricewaiter_integration( $integrations ) {
@@ -145,10 +119,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				}
 			}
 
-			public function add_pricewaiter_embed() {
-				new WC_PriceWaiter_Embed();
-			}
-
 			/**
 			* Inject pricewaiter data into product api response
 			*/
@@ -169,40 +139,37 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			}
 
 			/**
-			* Notify Admin WooCommerce plugin is required
-			*/
-			function alert_woocommerce_required() {
-				?>
-					<div class="error">
-						<h3><?php _e( 'WooCommerce required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h2>
-						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN) , $this->wc_minimum_version ); ?></p>
-						<p><a href="http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
-					</div>
-				<?
-			}
-			/**
 			* Notify Admin to update WooCommerce to minimum version
 			*/
 			public function alert_woocommerce_minimum_version(){
+				global $wc_minimum_version;
+
 				?>
 					<div class="error">
 						<h3><?php _e( 'WooCommerce update required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h3>
 						<p><?php printf( __( "It appears you're currently using WooCommerce v%s", WC_PriceWaiter::TEXT_DOMAIN ), WC()->version ); ?></p>
-						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $this->wc_minimum_version); ?></p>
+						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $wc_minimum_version); ?></p>
 					</div>
-				<?php
-			}
-
-			public function get_pricewaiter_setting( $key ) {
-				return isset( $this->pricewaiter_settings[$key] ) ? $this->pricewaiter_settings[$key] : false;
+				<?
 			}
 		}
 
-		function wc_pricewaiter() {
-			return WC_PriceWaiter::instance();
-		}
-		$GLOBALS['wc_pricewaiter'] = wc_pricewaiter();
+		$GLOBALS['wc_pricewaiter'] = new WC_PriceWaiter( __FILE__ );
 	}
+} else {
+	function alert_woocommerce_required() {
+		global $wc_minimum_version;
+
+		?>
+			<div class="error">
+				<h3>WooCommerce required to continue.</h2>
+				<p><?php echo 'WooCommerce v' . $wc_minimum_version . ' or higher is required to use the WooCommerce PriceWaiter plugin.'; ?></p>
+				<p><a href="http://www.woothemes.com/woocommerce/">Install WooCommerce to get started.</a></p>
+			</div>
+		<?
+	}
+	add_action( 'admin_notices', 'alert_woocommerce_required' );
+}
 
 /**
 * This should only fire once after activation
