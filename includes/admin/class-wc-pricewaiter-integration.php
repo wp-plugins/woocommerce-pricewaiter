@@ -12,73 +12,18 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		$this->id					= 'pricewaiter';
 		$this->method_title			= __( 'PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
 		$this->method_descrption	= __( 'Name your price through PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
-		$this->cost_plugin			= array();
+		// $this->cost_plugin			= array();
 		$this->messages				= array();
-
-		/**
-		* Check for any supported plugins to use for cost/margin data
-		*/
-		if( isset( $wc_pricewaiter->supported_cost_plugins ) ) {
-			foreach ($wc_pricewaiter->supported_cost_plugins as $plugin => $meta_fields) {
-				if( class_exists($plugin) ) {
-					$this->cost_plugin = $meta_fields;
-					break;
-				}
-			}
-		}
-
-		/**
-		* If there are no cost plugins activated, create our own.
-		* This sets up meta files similar to Cost Of Goods plugin.
-		* Allows for easy migration to the COG plugin by preserving
-		* meta fields that COG can use.
-		* http://www.woothemes.com/products/cost-of-goods/
-		*/
-		if ( count($this->cost_plugin) <= 0 ) {
-			/*
-			* Default PriceWaiter cost fields
-			*/
-			$this->cost_plugin = array(
-				'simple'			=> '_wc_cog_cost',
-				'variable'			=> '_wc_cog_cost_variable',
-				'variation'			=> '_wc_cog_cost'
-			);
-
-			$this->cost_plugin = apply_filters( 'wc_pricewaiter_default_cost_pluign', $this->cost_plugin );
-
-			/**
-			* Add cost text box to products
-			*/
-			add_action( 'woocommerce_product_options_pricing', array( $this, 'add_cost_field_to_simple_product' ) );
-			add_action( 'woocommerce_product_options_sku', array( $this, 'add_cost_field_to_variable_product' ) );
-			add_action( 'woocommerce_product_after_variable_attributes', array( $this, 'add_cost_field_to_product_variation' ), 15, 3 );
-			/**
-			* Save cost text boxes on products
-			*/
-			add_action( 'woocommerce_process_product_meta', array( $this, 'save_simple_product_cost' ) );
-			add_action( 'woocommerce_process_product_meta_variable', array( $this, 'save_variable_product_cost' ) );
-			add_action( 'woocommerce_save_product_variation', array( $this, 'save_product_variation_cost' ) );
-		}
 		
 		$this->init_form_fields();
 		$this->init_settings();
 
 		$this->api_key				= $this->get_option( 'api_key' );
 		$this->debug				= $this->get_option( 'debug' );
-		$this->cost_plugin			= apply_filters( 'wc_pricewaiter_cost_plugin_fields', $this->cost_plugin, $wc_pricewaiter->supported_cost_plugins );
 
 		// integration settings hooks
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_settings_api_sanitized_fields)'. $this->id, array( $this, 'sanitize_settings' ) );
-		
-		/**
-		*	Add PriceWaiter setting fields to products
-		*/
-		// add PriceWaiter Disable field to products under 'General' tab
-		add_action( 'woocommerce_product_options_sku', array( $this, 'add_pricewaiter_fields_to_product' ) );
-		
-		// save PriceWaiter fields on products
-		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product_pricewaiter' ), 10, 2 );
 		
 		/**
 		* Check Cost/Margin plugins for products and use their values
@@ -90,10 +35,6 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			add_action( 'admin_notices', array( $this, 'alert_admin_to_activate' ) );
 		}
 
-		/**
-		* Filter API get_product() to inject pricewaiter data
-		*/
-		add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
 	}
 
 	/**
@@ -215,177 +156,6 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			</div>
 			<?php
 		}
-	}
-
-	/**
-	* 	Create checkbox on variable product in the 'General' tab
-	*	to toggle the PriceWaiter button on the product page
-	*/
-	public function add_pricewaiter_fields_to_product() {
-		global $wc_pricewaiter;
-
-		$wrapper_class_string = '';
-		foreach ($wc_pricewaiter->supported_product_types as $type) {
-			$wrapper_class_string .= 'show_if_' . $type . ' ';
-		}
-		woocommerce_wp_checkbox(
-			array(
-				'id'				=> '_wc_pricewaiter_disabled',
-				'class'				=> 'checkbox',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> __( 'Disable PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN ),
-
-			)
-		);
-		woocommerce_wp_checkbox(
-			array(
-				'id'				=> '_wc_pricewaiter_conversion_tools_disabled',
-				'class'				=> 'checkbox',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
-			)
-		);
-	}
-
-	/**
-	 *	Save Disable PriceWaiter value for product
-	 */
-	public function save_product_pricewaiter( $post_id ) {
-		// Update checkbox for disabling PriceWaiter button
-		$checkbox_disabled = isset( $_POST['_wc_pricewaiter_disabled'] ) ? 'yes' : 'no';
-		update_post_meta( $post_id, '_wc_pricewaiter_disabled', $checkbox_disabled );
-		
-		// Update checkbox for enabled Conversion Tools
-		$checkbox_conversion = isset( $_POST['_wc_pricewaiter_conversion_tools_disabled'] ) ? 'yes' : 'no';
-		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools_disabled', $checkbox_conversion );
-	}
-
-	/**
-	* PriceWaiter 'cost' fields emulate Cost Of Goods meta fields for ease
-	* of transition to that specific plugin.
-	*/
-
-	/**
-	* Add Cost field to simple product's 'General' tab
-	*/
-	public function add_cost_field_to_simple_product() {
-		global $wc_pricewaiter;
-
-		$wrapper_class_string = '';
-
-		foreach ($wc_pricewaiter->supported_product_types as $type) {
-			$wrapper_class_string .= 'show_if_' . $type . ' ';
-		}
-
-		woocommerce_wp_text_input(
-			array(
-				'id'				=> '_wc_cog_cost',
-				'class'				=> 'wc_input_price short',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'			=> 'price',
-			)
-		);
-	}
-
-	/**
-	* Add Cost field to variable product's 'General' tab
-	*/
-	public function add_cost_field_to_variable_product() {
-		woocommerce_wp_text_input(
-			array(
-				'id'				=> '_wc_cog_cost_variable',
-				'class'				=> 'wc_input_price short',
-				'wrapper_class'		=> 'show_if_variable',
-				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'			=> 'price',
-				'desc_tip'			=> true,
-				'description'		=> __( 'Default cost for product variations', WC_PriceWaiter::TEXT_DOMAIN ),
-			)
-		);		
-	}
-
-	/**
-	* Add cost field to product variations under 'variations' tab for each.
-	*/
-	public function add_cost_field_to_product_variation( $loop, $variation_data, $variation ) {
-		$default_cost = get_post_meta( $variation->post_parent, '_wc_cog_cost_variable', true );
-		$cost = ( isset( $variation_data['_wc_cog_cost'][0] ) ) ? $variation_data['_wc_cog_cost'][0] : '';
-
-		if ( isset( $variation_data['_wc_cog_default_cost'][0] ) && $variation_data['_wc_cog_default_cost'][0] == 'yes' ) {
-			$cost = '';
-		}
-
-		?>
-			<tr>
-				<td>
-					<label><?php  printf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), esc_html( get_woocommerce_currency_symbol() ) ); ?></label>
-					<input type="text" size="6" name="variable_cost_of_good[<?php echo esc_attr( $loop ); ?>]" value="<?php echo esc_attr( $cost ); ?>" class="wc_input_price" placeholder="<?php echo esc_attr( $default_cost ); ?>" >
-				</td>
-				<td>&nbsp;</td>
-			</tr>
-
-		<?php
-	}
-
-	/**
-	* No cost/margin plugin: save custom cost data.
-	*/
-	public function save_simple_product_cost( $post_id ) {
-		$product_type = empty( $_POST['product-type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product-type'] ) );
-		
-		if ( $product_type !== 'variable' ) {
-			update_post_meta( $post_id, '_wc_cog_cost', stripcslashes( $_POST['_wc_cog_cost'] ) );
-		}
-	}
-
-	public function save_variable_product_cost( $post_id ) {
-		$default_cost = stripcslashes( $_POST['_wc_cog_cost_variable'] );
-		update_post_meta( $post_id, '_wc_cog_cost_variable', $default_cost );
-	}
-
-	public function save_product_variation_cost( $variation_id ) {
-		$default_cost = stripcslashes( $_POST['_wc_cog_cost_variable'] );
-
-		if ( ($i = array_search( $variation_id, $_POST['variable_post_id'] ) ) !== false ) {
-			$cost = $_POST['variable_cost_of_good'][$i];
-
-			if ( $cost !== '' ) {
-				update_post_meta( $variation_id, '_wc_cog_cost', $cost );
-				update_post_meta( $variation_id, '_wc_cog_default_cost', 'no' );
-			} else {
-				if( $default_cost ) {
-					update_post_meta( $variation_id, '_wc_cog_cost', $default_cost );
-					update_post_meta( $variation_id, '_wc_cog_default_cost', 'yes' );
-				}else{
-					update_post_meta( $variation_id, '_wc_cog_cost', '' );
-					update_post_meta( $variation_id, '_wc_cog_default_cost', 'no' );
-				}
-			}
-		}
-	}
-
-	/**
-	* Inject pricewaiter data into product api response
-	*/
-	public function wc_product_api_inject_pricewaiter( $product_data, $product, $fields, $server ) {
-		global $wc_pricewaiter;
-
-		if ( !in_array( $product->product_type, $wc_pricewaiter->supported_product_types ) ) {
-			$product_data['pricewaiter'] = false;
-			return $product_data;
-		}
-
-		$cost_field = isset( $this->cost_plugin[$product->product_type] ) ? $product->product_type : 'simple';
-		$product_data['pricewaiter'] = array(
-			'cost'				=> get_post_meta( $product->id, $this->cost_plugin[$cost_field], true ),
-			'button'			=> get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
-			'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
-		);
-
-		return $product_data;
 	}
 
 	/**

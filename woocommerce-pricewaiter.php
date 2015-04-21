@@ -39,6 +39,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					'variation'		=> '_wc_cog_cost'
 				)
 			);
+			public $cost_plugin_fields = array();
+			public $cost_plugin_installed = false;
 			public $supported_product_types = array( 
 				'simple',
 				'variable',
@@ -68,15 +70,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
 				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
-				
-				if ( class_exists( 'WC_Integration' ) ) {
-					require_once( 'includes/class-wc-pricewaiter-product.php' );
-					require_once( 'includes/class-wc-pricewaiter-embed.php' );
-					require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
-					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
-				} else {
-					// Ya do nothin' homie.
-				}
+
+				$this->setup_cost_plugin();
+
+				require_once( 'includes/class-wc-pricewaiter-product.php' );
+				require_once( 'includes/class-wc-pricewaiter-embed.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
+				add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
+				/**
+				* Filter API product response to inject pricewaiter data
+				*/
+				$this->product_settings = new WC_PriceWaiter_Product_Settings();
+				add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
 			}
 
 			/**
@@ -90,6 +96,46 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			public function add_pricewaiter_integration( $integrations ) {
 				$integrations[] = 'WC_PriceWaiter_Integration';
 				return $integrations;
+			}
+
+			private function setup_cost_plugin() {
+				/**
+				* Check for any supported plugins to use for cost/margin data
+				*/
+				if( isset( $this->supported_cost_plugins ) ) {
+					foreach ($this->supported_cost_plugins as $plugin => $meta_fields) {
+						if( class_exists($plugin) ) {
+							$this->cost_plugin_installed = true;
+							$this->cost_plugin_fields = $meta_fields;
+							break;
+						}
+					}
+				}
+				$this->cost_plugin_installed = apply_filters( 'wc_pricewaiter_cost_plugin_installed', $this->cost_plugin_installed );
+				if ( !$this->cost_plugin_installed ) {
+					// No cost plugin installed, build fallback
+					include_once( 'includes/admin/class-wc-pricewaiter-costs.php' );
+					$this->active_cost_plugin = new WC_PriceWaiter_Costs();
+				}
+			}
+
+			/**
+			* Inject pricewaiter data into product api response
+			*/
+			public function wc_product_api_inject_pricewaiter( $product_data, $product, $fields, $server ) {
+				if ( !in_array( $product->product_type, $this->supported_product_types ) ) {
+					$product_data['pricewaiter'] = false;
+					return $product_data;
+				}
+
+				$cost_field = isset( $this->cost_plugin_fields[$product->product_type] ) ? $product->product_type : 'simple';
+				$product_data['pricewaiter'] = array(
+					'cost'				=> get_post_meta( $product->id, $this->cost_plugin_fields[$cost_field], true ),
+					'button'			=> get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
+					'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
+				);
+
+				return $product_data;
 			}
 
 			/**
