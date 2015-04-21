@@ -126,3 +126,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 	add_action( 'admin_notices', 'alert_woocommerce_required' );
 }
+
+function wc_pricewaiter_activated() {
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'wc_pricewaiter_activated' );
