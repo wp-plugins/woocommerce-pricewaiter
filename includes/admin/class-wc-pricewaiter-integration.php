@@ -114,35 +114,29 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 			do {
 				$query_args = array(
-					'post_type'			=> 'product',
+					'post_type'			=> array('product', 'product_variation'),
 					'posts_per_page'	=> $posts_per_page,
 					'offset'			=> $query_offset
 				);
 
-				$product_ids = get_posts( $query_args );
+				$products = get_posts( $query_args );
 
-				if( is_wp_error( $product_ids ) ) {
+				if( is_wp_error( $products ) ) {
 					$redirect_url = remove_query_arg( 'pricewaiter_action', stripslashes( $_SERVER['REQUEST_URI'] ) );
 					wp_redirect($redirect_url);
 					exit;
 				}
 
-				if( is_array( $product_ids ) ) {
-					foreach ($product_ids as $product_id) {
-						$pf = new WC_Product_Factory();
-						$product = $pf->get_product( $product_id );
-						if ( $product->is_type( 'simple' ) ) {
-							update_post_meta( $product->id, '_wc_pricewaiter_cost', get_post_meta( $product->id, $this->cost_plugin['simple'], true ) );
-						}elseif($product->is_type( 'variable' ) ){
-							update_post_meta( $product->id, '_wc_pricewaiter_cost', get_post_meta( $product->id, $this->cost_plugin['variable'], true ) );
-						}
+				if( is_array( $products ) ) {
+					foreach ($products as $product) {
+						update_post_meta( $product->ID, '_wc_pricewaiter_cost', get_post_meta( $product->ID, $this->cost_plugin['simple'], true ) );
 						$update_count++;
 					}
 				}
 
 				$query_offset += $posts_per_page;
 				update_option( 'pricewaiter_cost_clone_offset', $query_offset );
-			} while ( count( $product_ids ) == $posts_per_page );
+			} while ( count( $products ) == $posts_per_page );
 
 			delete_option( 'pricewaiter_cost_clone_offset' );
 
