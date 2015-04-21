@@ -19,7 +19,7 @@ PriceWaiter® lets customers make offers on products you sell -- offers you can 
 * Increase conversion rates
 * Negate MAP regulations
 
-For more information visit our [WooCommerce Integration Page](https://www.pricewaiter.com/integrations/woocommerce/).
+For more information visit our [WooCommerce Integration Page](https://www.pricewaiter.com/integrations/woocommerce/) or [WooCommerce Docs Page](https://docs.pricewaiter.com/platforms/woocommerce.html).
 
 == Installation ==
 
