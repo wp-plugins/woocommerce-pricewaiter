@@ -86,13 +86,21 @@ if ( !class_exists( 'WC_PriceWaiter_Embed' ) ):
 						name: 	'<?php echo esc_attr($current_user->user_firstname) . " " . esc_attr($current_user->user_lastname); ?>'
 					};
 					PriceWaiterOptions.hide_quantity_field = <?php echo $product->is_sold_individually() ? 'true' : 'false'; ?>;
-					PriceWaiterOptions.metadata = {
 					<?php
+						$metadata_output = array();
 						foreach ( $product_meta as $key => $value ) {
-							echo '"' . $key . '": "' . $value . '",';
+							if ( !empty( $value) ) {
+								$metadata_output[] = '"' . $key . '": "' . $value . '"';
+							}
 						}
+						if ( count( $metadata_output ) ) {
+							echo "
+					PriceWaiterOptions.metadata = {
+						" . implode( ",\n", $metadata_output ) . "
+					}\n";
+						}
+						
 					 ?>
-					};
 				})(document, window, jQuery);
 			</script>
 			<?php
