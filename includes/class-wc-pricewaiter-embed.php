@@ -75,10 +75,10 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					var variation_meta = <?php echo json_encode( $variation_meta ); ?>;
 					<?php endif; ?>
 
-					PriceWaiterOptions.product 		= <?php echo json_encode( $product_data ); ?>;
-					PriceWaiterOptions.currency 	= '<?php echo get_woocommerce_currency(); ?>';
-					PriceWaiterOptions.addToPage	= <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
-					PriceWaiterOptions.exit			= <?php echo WC_PriceWaiter_Product::is_using_conversion_tools($product); ?>;
+					PriceWaiterOptions.product = <?php echo json_encode( $product_data ); ?>;
+					PriceWaiterOptions.currency = '<?php echo get_woocommerce_currency(); ?>';
+					PriceWaiterOptions.enableButton = <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
+					PriceWaiterOptions.enableConversionTools = <?php echo WC_PriceWaiter_Product::is_using_conversion_tools($product); ?>;
 					PriceWaiterOptions.user = {
 						email: 	'<?php echo $current_user->user_email; ?>',
 						name: 	'<?php echo esc_attr($current_user->user_firstname) . " " . esc_attr($current_user->user_lastname); ?>'
@@ -90,32 +90,6 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 							echo '"' . $key . '": "' . $value . '",';
 						}
 					 ?>
-					};
-					PriceWaiterOptions.onButtonClick = function() {
-						var cart_data = $('.cart').serializeArray();
-
-						$.each(cart_data, function(k,v) {
-							if (v.name == 'quantity') {
-								PriceWaiter.setQuantity(parseInt(v.value,10));
-							}
-							if ( typeof variation_data !== 'undefined' ) {
-								if (v.name.indexOf('attribute_') != -1) {
-									PriceWaiter.setProductOption(v.name.replace('attribute_', ''), v.value);
-								}
-								if (v.name == 'variation_id') {
-									var variation = variation_data[v.value.toString()];
-									var variation_m = variation_meta[v.value.toString()];
-									PriceWaiter.setSKU(variation.sku);
-									PriceWaiter.setProduct(variation.name);
-									PriceWaiter.setRegularPrice(variation.regular_price);
-									PriceWaiter.setPrice(variation.price);
-									PriceWaiter.setProductImage(variation.image);
-									$.each( variation_m, function(mk,mv) {
-										PriceWaiter.setMetadata(mk,mv);
-									} );
-								}
-							}
-						});
 					};
 				})(document, window, jQuery);
 			</script>
