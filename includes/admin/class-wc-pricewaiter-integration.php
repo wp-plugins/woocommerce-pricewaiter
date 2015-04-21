@@ -70,9 +70,10 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			),
 			'customize_button' => array(
 				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'button',
+				'type'				=> 'button_link',
 				'custom_attributes' => array(
-					'onclick'		=> "location.href='https://manage.pricewaiter.com'"
+					'href'		=> "https://manage.pricewaiter.com",
+					'target' 	=> "_blank"
 				),
 				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
@@ -101,7 +102,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	/*
 	*	Customize appearance of button
 	*/
-	public function generate_button_html( $key, $data ) {
+	public function generate_button_link_html( $key, $data ) {
 		$field = $this->plugin_id . $this->id . '_' . $key;
 		$defaults = array(
 			'class'					=> 'button-secondary',
@@ -124,7 +125,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			<td class="forminp">
 				<fieldset>
 					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
-					<button class="<?php echo esc_attr( $data['class'] ); ?>" type="button" name="<?php echo esc_attr( $field ); ?>" id="<?php echo esc_attr( $field ); ?>" <?php echo $this->get_custom_attribute_html( $data ); ?>><?php echo wp_kses_post( $data['title'] ); ?></button>
+					<a class="<?php echo esc_attr( $data['class'] ); ?>" title="<?php echo esc_attr( $data['title'] ); ?>" id="<?php echo esc_attr( $field ); ?>" <?php echo $this->get_custom_attribute_html( $data ); ?>><?php echo wp_kses_post( $data['title'] ); ?></a>
 					<?php echo $this->get_description_html( $data ); ?>
 				</fieldset>
 			</td>
