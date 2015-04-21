@@ -28,79 +28,138 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
         }
 
         /**
-         * Get store data to prefill PriceWaiter sign up
+         * Get link to allow user to sign up for PriceWaiter
          *
-         * @access public
-         * @param bool $encode
-         * @param array of additional url parameters
-         * @return mixed
+         * @param string sign up url
+         * @param array key value pairs of optional url params
+         * @return string sign up url
          */
-        public static function get_sign_up_url( $base_url, $additional_args = array(), $params = array() ) {
-
+        public static function get_sign_up_url( $base_url, $additional_params = array() ) {
             if ( !$base_url ) {
-                $base_url = 'https://manage.pricewaiter.com/sign-up';
+                $base_url = apply_filters( 'wc_pricewaiter_default_sign_up_base_url', 'https://manage.pricewaiter.com/sign-up' );
             }
 
-            // Get current user info
-            $user = wp_get_current_user();
-            $user_fullname = trim($user->user_firstname . ' ' . $user->user_lastname );
+            $token = self::get_sign_up_token();
 
-            // Get store locale info
-            $locale = new WC_Countries;
-
-            // Get API user
-            $api_user = get_user_by( 'id', get_option( '_wc_pricewaiter_api_user_id' ) );
-
-            if (!$api_user) {
-                $api_user = new stdClass;
-                $api_user->woocommerce_api_consumer_key = '';
-                $api_user->woocommerce_api_consumer_secret = '';
+            if ( $token ) {
+                $base_url = add_query_arg( array( 'token' => $token ), $base_url );
             }
 
-            // Get PayPal standard settings
-            $paypal = new WC_Gateway_Paypal;
-
-            // Params to be json encoded and passed to /sign-up?prefill_store=
-            $prefill_args = array(
-                // User information
-                'name' => $user_fullname,
-                'email' => $user->user_email,
-                'user_firstname' => $user->user_firstname,
-                'user_lastname' => $user->user_lastname,
-
-                // Store information
-                'domain' => site_url(),
-                'shop_owner' => $user_fullname,
-                'shop_country' => $locale->get_base_country(),
-                'shop_state' => $locale->get_base_state(),
-                'shop_city' => $locale->get_base_city(),
-                'shop_zip' => $locale->get_base_postcode(),
-                'allowed_countries' => $locale->get_shipping_countries(),
-                'default_currency' => get_woocommerce_currency(),
-                
-                // API Access
-                'woo_api_key' => $api_user->woocommerce_api_consumer_key,
-                'woo_api_secret' => $api_user->woocommerce_api_consumer_secret,
-                'woo_api_endpoint' => get_woocommerce_api_url(''),
-
-                // PayPal settings (don't send if not both set?)
-                'paypal_enabled' => $paypal->is_valid_for_use(),
-                'paypal_email' => $paypal->receiver_email
+            $utm_params = array(
+                'utm_campaign' => 'signup',
+                'utm_source'   => 'woocommerce',
+                'utm_medium'   => 'integrations',
+                'utm_content'  => site_url(),
+                'utm_term'     => ''
             );
 
-            // Additional url args
-            $additional_args['utm_campaign'] = 'signup';
-            $additional_args['utm_source'] = 'woocommerce';
-            $additional_args['utm_medium'] = 'integrations';
-            $additional_args['utm_content'] = site_url();
-            $additional_args['utm_term'] = '';
+            $params = array_merge( $utm_params, $additional_params );
 
-            // Merge custom params and send over
-            $prefill_args = array_merge( $prefill_args, $params );
-            $additional_args['prefill_store'] = json_encode( $prefill_args, ENT_QUOTES );
+            return add_query_arg( $params, $base_url );
+        }
 
-            return $base_url . '?' . http_build_query($additional_args, '', '&amp;');
+        /**
+         * Get token if it's set, or requests one.
+         *
+         * @return string PriceWaiter sign up token
+         */
+        public static function get_sign_up_token() {
+            // get wc_pricewaiter_sign_up_token option
+            $token = get_option( 'wc_pricewaiter_sign_up_token' );
+            if ( $token ) {
+                return $token;
+            }
 
+            // if empty or not set, request a token
+            return self::_request_sign_up_token();
+        }
+
+        /**
+         * Sends post request to PriceWaiter with basic store data
+         * to pre-configure a new account.
+         *
+         * @return string newly generated token
+         */
+        private static function _request_sign_up_token() {
+            $sign_up_api_endpoint = apply_filters( 'wc_pricewaiter_api_sign_up_url', 'https://api.pricewaiter.com/store-signups' );
+
+            $ch = curl_init();
+
+            curl_setopt( $ch, CURLOPT_URL, $sign_up_api_endpoint );
+            curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 30 );
+            curl_setopt( $ch, CURLOPT_TIMEOUT, 30 );
+            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+            curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-type: application/x-www-form-urlencoded' ) );
+            curl_setopt( $ch, CURLOPT_POST, true );
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( self::_get_store_data() ) );
+
+            $response = curl_exec( $ch );
+
+            if ( empty( $response ) ) {
+                return false;
+            }
+
+            $response = json_decode( $response );
+            $token = $response->body->token;
+
+            update_option( 'wc_pricewaiter_sign_up_token', $token );
+
+            return $token;
+        }
+
+        /**
+         * Build required PriceWaiter store sign up data
+         *
+         * @param array additional arguments to pass to PriceWaiter API
+         * @return array key value pairs to pass to PriceWaiter
+         */
+        private static function _get_store_data( $additional_args = array() ) {
+            $user     = wp_get_current_user();
+            $api_user = get_user_by( 'id', get_option( '_wc_pricewaiter_api_user_id' ) );
+            $locale   = new WC_Countries;
+            $paypal = new WC_Gateway_Paypal;
+
+            $user_fullname = trim( $user->user_firstname . ' ' . $user->user_lastname );
+
+            if ( !$api_user ) {
+                $api_user = new stdClass;
+                $api_user->woocommerce_api_consumer_key    = '';
+                $api_user->woocommerce_api_consuper_secret = '';
+            }
+
+            $full_shipping_countries = $locale->get_shipping_countries();
+            $shipping_countries = array();
+
+            foreach ( $full_shipping_countries as $isocode => $countryname ) {
+                $shipping_countries[] = $isocode;
+            }
+            $shipping_country_string = join( ', ', $shipping_countries );
+
+            $store_args = array(
+                'platform'         => 'woo',
+                'woo_api_key'      => $api_user->woocommerce_api_consumer_key,
+                'woo_api_secret'   => $api_user->woocommerce_api_consumer_secret,
+                'woo_api_endpoint' => get_woocommerce_api_url( '' ),
+
+                'user_email'     => $user->user_email,
+                'user_name'      => $user_fullname,
+                'user_firstname' => $user->user_firstname,
+                'user_lastname'  => $user->user_lastname,
+
+                'store_name'               => '',
+                'store_url'                => '',
+                'store_country'            => $locale->get_base_country(),
+                'store_state'              => $locale->get_base_state(),
+                'store_city'               => $locale->get_base_city(),
+                'store_zip'                => $locale->get_base_postcode(),
+                'store_shipping_countries' => $shipping_country_string,
+                'store_currency'           => get_woocommerce_currency(),
+                'store_paypal_email'       => $paypal->receiver_email,
+                'store_order_callback_url' => '',
+                'store_twitter_handle'     => ''
+            );
+
+            return array_merge( $store_args, $additional_args );
         }
 
         /**
