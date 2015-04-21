@@ -25,16 +25,30 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_settings_api_sanitized_fields)'. $this->id, array( $this, 'sanitize_settings' ) );
 		
-		/**
-		* Check Cost/Margin plugins for products and use their values
-		*/
-		// If API key is set, add the button, if not, notify Admin to add Key
-		if( isset( $_POST['woocommerce_pricewaiter_api_key'] ) && $_POST['woocommerce_pricewaiter_api_key'] ) {
+		if( $this->is_configured() ) {
+			// If required fields are set to add button
 			add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
-		}else if( $this->api_key == "" ) {
-			add_action( 'admin_notices', array( $this, 'alert_admin_to_activate' ) );
+		} else {
+			// Alert admin to complete setup
+			add_action( 'admin_notices', array( $this, 'alert_admin_to_configure' ) );
+		}
+	}
+
+	public function is_configured() {
+		$is_config_completed = false;
+
+		$required_configs = array(
+			// has or is setting api_key
+			( isset( $this->api_key ) && !empty( $this->api_key ) ) || ( isset( $_POST['woocommerce_pricewaiter_api_key'] ) && !empty( $_POST['woocommerce_pricewaiter_api_key'] ) ),
+			// other config values to check for
+		);
+
+		// if any required fields are false, configuration is incomplete.
+		if ( !in_array( false, $required_configs ) ) {
+			$is_config_completed = true;
 		}
 
+		return $is_config_completed;
 	}
 
 	/**
@@ -44,7 +58,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	*			Consider how COG performs message queues.
 	*
 	*/
-	public function alert_admin_to_activate() {
+	public function alert_admin_to_configure() {
 		?>
 		<div class="update-nag">
 			<p>
