@@ -73,6 +73,8 @@ if ( !class_exists( 'WC_PriceWaiter_Embed' ) ):
 					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap .variations_button');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
 					var variation_meta = <?php echo json_encode( $variation_meta ); ?>;
+					window._pw_woo_variation_data = variation_data;
+					window._pw_woo_variation_meta = variation_meta;
 					<?php endif; ?>
 
 					PriceWaiterOptions.product = <?php echo json_encode( $product_data ); ?>;
