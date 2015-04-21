@@ -9,22 +9,22 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function __construct() {
 		global $woocommerce;
 
-		$this->id					= 'pricewaiter';
-		$this->method_title			= __( 'PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
-		$this->method_descrption	= __( 'Name your price through PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
-		// $this->cost_plugin			= array();
-		$this->messages				= array();
+		$this->id                = 'pricewaiter';
+		$this->method_title      = __( 'PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
+		$this->method_descrption = __( 'Name your price through PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
+		// $this->cost_plugin    = array();
+		$this->messages          = array();
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->api_key				= $this->get_option( 'api_key' );
-		$this->setup_complete 		= $this->get_option( 'setup_complete' );
-		$this->debug				= $this->get_option( 'debug' );
+		$this->api_key           = $this->get_option( 'api_key' );
+		$this->setup_complete    = $this->get_option( 'setup_complete' );
+		$this->debug             = $this->get_option( 'debug' );
 
 		// integration settings hooks
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_settings_api_sanitized_fields_'. $this->id, array( $this, 'sanitize_settings' ) );
+		add_action( 'woocommerce_settings_api_sanitized_fields_' . $this->id, array( $this, 'sanitize_settings' ) );
 
 		// prevent from showing on integrations page or when api user notice is needed
 		if( !$this->setup_complete && !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) && ( !get_option( '_wc_pricewaiter_api_user_status' ) || 'ACTIVE' == get_option( '_wc_pricewaiter_api_user_status' ) ) ) {
@@ -45,11 +45,11 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function init_form_fields() {
 		$this->form_fields = array(
 			'api_key' => array(
-				'title'				=> __( 'API Key', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'text',
-				'description'		=> __( 'Enter your PriceWaiter store API key.', WC_PriceWaiter::TEXT_DOMAIN ),
-				'desc_tip'			=> true,
-				'default'			=> ''
+				'title'       => __( 'API Key', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'        => 'text',
+				'description' => __( 'Enter your PriceWaiter store API key.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'    => true,
+				'default'     => ''
 			)
 		);
 
@@ -57,41 +57,41 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 		// conditionally show fields that depend on API key existing.
 		if( $api_key ) {
-			$this->form_fields['ecommerce_tracking'] = array(
-				'title'				=> __( 'eCommerce Tracking', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'select',
-				'options'  => array(
-					''              => __( 'Disabled', WC_PriceWaiter::TEXT_DOMAIN ),
-					'ua' 			=> __( 'Univeral Analtyics', WC_PriceWaiter::TEXT_DOMAIN ),
-					'ga'          	=> __( 'Classic Google Analytics', WC_PriceWaiter::TEXT_DOMAIN ),
+			$this->form_fields['ecommerce_tracking']   = array(
+				'title'             => __( 'eCommerce Tracking', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'              => 'select',
+				'options'           => array(
+					''       => __( 'Disabled', WC_PriceWaiter::TEXT_DOMAIN ),
+					'ua'     => __( 'Univeral Analtyics', WC_PriceWaiter::TEXT_DOMAIN ),
+					'ga'     => __( 'Classic Google Analytics', WC_PriceWaiter::TEXT_DOMAIN ),
 				),
-				'description' 		=> __( 'Track PriceWaiter transactions with Google analytics eCommerce tracking. Assumes you have UA or GA already installed.', WC_PriceWaiter::TEXT_DOMAIN ),
-				'desc_tip'			=> true
+				'description'       => __( 'Track PriceWaiter transactions with Google analytics eCommerce tracking. Assumes you have UA or GA already installed.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'          => true
 			);
-			$this->form_fields['customize_button'] = array(
-				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'button_link',
+			$this->form_fields['customize_button']     = array(
+				'title'             => __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'              => 'button_link',
 				'custom_attributes' => array(
-					'href'		=> apply_filters( 'wc_pricewaiter_account_base_url', "https://manage.pricewaiter.com" ) . "/stores/{$api_key}/button",
-					'target' 	=> "_blank"
+					'href'   => apply_filters( 'wc_pricewaiter_account_base_url', "https://manage.pricewaiter.com" ) . "/stores/{$api_key}/button",
+					'target' => "_blank"
 				),
-				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
-				'desc_tip'			=> true
+				'description'       => __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'          => true
 			);
 			$this->form_fields['button_wrapper_style'] = array(
-				'title'				=> __( 'Button Wrapper Style', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'textarea',
-				'label'				=> __( 'Additional Button Wrapper Styles', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Styles are applied as an inline style attribute to the button wrapper.', WC_PriceWaiter::TEXT_DOMAIN ),
-				'default'			=> "padding-top: 10px;\nclear: both;"
+				'title'             => __( 'Button Wrapper Style', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'              => 'textarea',
+				'label'             => __( 'Additional Button Wrapper Styles', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'       => __( 'Styles are applied as an inline style attribute to the button wrapper.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'default'           => "padding-top: 10px;\nclear: both;"
 			);
-			$this->form_fields['debug'] = array(
-				'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
-				'type'				=> 'checkbox',
-				'label'				=> __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN ),
-				'desc_tip'			=> true,
-				'default' 			=> false
+			$this->form_fields['debug']                = array(
+				'title'             => __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'              => 'checkbox',
+				'label'             => __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'       => __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'          => true,
+				'default'           => false
 			);
 		}
 	}
@@ -117,12 +117,12 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function generate_button_link_html( $key, $data ) {
 		$field = $this->plugin_id . $this->id . '_' . $key;
 		$defaults = array(
-			'class'					=> 'button-secondary',
-			'css'					=> '',
-			'custom_attributes'		=> array(),
-			'desc_tip'				=> false,
-			'description'			=> '',
-			'title'					=> ''
+			'class'             => 'button-secondary',
+			'css'               => '',
+			'custom_attributes' => array(),
+			'desc_tip'          => false,
+			'description'       => '',
+			'title'             => ''
 		);
 
 		$data = wp_parse_args( $data, $defaults );

@@ -1,4 +1,4 @@
-<?php 
+<?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class WC_PriceWaiter_Costs {
@@ -8,9 +8,9 @@ class WC_PriceWaiter_Costs {
 		* Default PriceWaiter cost fields
 		*/
 		wc_pricewaiter()->cost_plugin_fields = array(
-			'simple'			=> '_wc_cog_cost',
-			'variable'			=> '_wc_cog_cost_variable',
-			'variation'			=> '_wc_cog_cost'
+			'simple'    => '_wc_cog_cost',
+			'variable'  => '_wc_cog_cost_variable',
+			'variation' => '_wc_cog_cost'
 		);
 
 		wc_pricewaiter()->cost_plugin_fields = apply_filters( 'wc_pricewaiter_default_cost_pluign_fields', wc_pricewaiter()->cost_plugin_fields );
@@ -47,11 +47,11 @@ class WC_PriceWaiter_Costs {
 
 		woocommerce_wp_text_input(
 			array(
-				'id'				=> '_wc_cog_cost',
-				'class'				=> 'wc_input_price short',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'			=> 'price',
+				'id'            => '_wc_cog_cost',
+				'class'         => 'wc_input_price short',
+				'wrapper_class' => $wrapper_class_string,
+				'label'         => sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
+				'data_type'     => 'price',
 			)
 		);
 	}
@@ -62,15 +62,15 @@ class WC_PriceWaiter_Costs {
 	public function add_cost_field_to_variable_product() {
 		woocommerce_wp_text_input(
 			array(
-				'id'				=> '_wc_cog_cost_variable',
-				'class'				=> 'wc_input_price short',
-				'wrapper_class'		=> 'show_if_variable',
-				'label'				=> sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
-				'data_type'			=> 'price',
-				'desc_tip'			=> true,
-				'description'		=> __( 'Default cost for product variations', WC_PriceWaiter::TEXT_DOMAIN ),
+				'id'            => '_wc_cog_cost_variable',
+				'class'         => 'wc_input_price short',
+				'wrapper_class' => 'show_if_variable',
+				'label'         => sprintf( __( 'Cost of Good (%s)', WC_PriceWaiter::TEXT_DOMAIN ), get_woocommerce_currency_symbol() ),
+				'data_type'     => 'price',
+				'desc_tip'      => true,
+				'description'   => __( 'Default cost for product variations', WC_PriceWaiter::TEXT_DOMAIN ),
 			)
-		);		
+		);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class WC_PriceWaiter_Costs {
 	*/
 	public function save_simple_product_cost( $post_id ) {
 		$product_type = empty( $_POST['product-type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product-type'] ) );
-		
+
 		if ( $product_type !== 'variable' ) {
 			update_post_meta( $post_id, '_wc_cog_cost', stripcslashes( $_POST['_wc_cog_cost'] ) );
 		}

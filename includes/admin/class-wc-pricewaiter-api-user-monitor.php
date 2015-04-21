@@ -1,7 +1,7 @@
 <?php
 /**
  * Status handler for the API user assigned to PriceWaiter
- * 
+ *
  * Performs checks when editing the API user profile to make
  * sure the changes don't break the functionality of the API.
  *
@@ -16,11 +16,11 @@ class WC_PriceWaiter_API_User_Monitor {
 	public function __construct() {
 		$this->api_user_status = $this->get_api_user_status();
 
-		/** 
+		/**
 		 * A user is being deleted. Check if it's the api user.
 		 */
 		add_action( 'delete_user', array( $this, 'check_if_api_user_deleted' ) );
-		
+
 		/**
 		 * A user is being modified.
 		 * Check if it's the API user and if anything important has been modified.
@@ -29,7 +29,7 @@ class WC_PriceWaiter_API_User_Monitor {
 
 		/**
 		 * Create an Admin notice to state what's wrong with the user.
-		 * 
+		 *
 		 * DELETED         = Ask to go to PW setup and reassign an API user.
 		 * MISSING_KEYS    = Go to PW setup and assign API user to regenerate keys.
 		 * LOW_PERMISSIONS = Go to PW setup and assign API user to reset permissions.
@@ -42,7 +42,7 @@ class WC_PriceWaiter_API_User_Monitor {
 			if ( !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) ) {
 				switch ( $this->api_user_status ) {
 					case 'DELETED':
-						wc_pricewaiter()->notice_handler->add_notice( 
+						wc_pricewaiter()->notice_handler->add_notice(
 							'<h3>PriceWaiter is temporarily disabled.</h3>
 							<p><strong>The user PriceWaiter associates with the WooCommerce REST API access appears to have been removed.</strong></p>
 							<p>Please grant a user WooCommerce REST API access or select a user with access in the PriceWaiter Settings to continue selling more with PriceWaiter.</p>
@@ -54,7 +54,7 @@ class WC_PriceWaiter_API_User_Monitor {
 						break;
 
 					case 'MISSING_KEYS':
-						wc_pricewaiter()->notice_handler->add_notice( 
+						wc_pricewaiter()->notice_handler->add_notice(
 							"<h3>PriceWaiter is temporarily disabled.</h3>
 							<p>The user (<strong>{$user_info->user_login}</strong>) PriceWaiter associates with the WooCommerce REST API appears to have had the API Key revoked.</strong></p>
 							<p>Configure PriceWaiter to resolve this issue. Reselecting <strong>{$user_info->user_login}</strong> from the existing users option will automatically regenerate keys for that user.</p>
@@ -65,7 +65,7 @@ class WC_PriceWaiter_API_User_Monitor {
 						break;
 
 					case 'LOW_PERMISSIONS':
-						wc_pricewaiter()->notice_handler->add_notice( 
+						wc_pricewaiter()->notice_handler->add_notice(
 							"<h3>PriceWaiter is temporarily disabled.</h3>
 							<p>The user (<strong>{$user_info->user_login}</strong>) PriceWaiter associates with the WooCommerce REST API requires <strong>read/write</strong> permissions.</strong></p>
 							<p>Configure PriceWaiter to resolve this issue. Reselecting <strong>{$user_info->user_login}</strong> from the existing users option will automatically reset permissions for that user.</p>
@@ -81,7 +81,7 @@ class WC_PriceWaiter_API_User_Monitor {
 
 	/**
 	 * Returns known status of the api user
-	 * 
+	 *
 	 * @return string, ACTIVE, DELETED, MISSING_KEYS, LOW_PERMISSIONS
 	 */
 	public static function get_api_user_status() {

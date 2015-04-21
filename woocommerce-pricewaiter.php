@@ -21,9 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	*/
 	if ( !class_exists( 'WC_PriceWaiter' ) ) {
 		final class WC_PriceWaiter {
-			const VERSION = "0.0.1";
-			const PLUGIN_ID = 'pw';
-			const TEXT_DOMAIN = 'woocommerce-pricewaiter';
+			const VERSION              = "0.0.1";
+			const PLUGIN_ID            = 'pw';
+			const TEXT_DOMAIN          = 'woocommerce-pricewaiter';
 			public $wc_minimum_version = '2.2.0';
 			/**
 			* Main array key is the plugins primary class.
@@ -34,13 +34,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			*/
 			public $supported_cost_plugins = array(
 				'WC_COG' => array(
-					'simple'		=> '_wc_cog_cost',
-					'variable'		=> '_wc_cog_cost_variable',
-					'variation'		=> '_wc_cog_cost'
+					'simple'    => '_wc_cog_cost',
+					'variable'  => '_wc_cog_cost_variable',
+					'variation' => '_wc_cog_cost'
 				)
 			);
-			public $cost_plugin_fields = array();
-			public $cost_plugin_installed = false;
+			public $cost_plugin_fields      = array();
+			public $cost_plugin_installed   = false;
 			public $supported_product_types = array(
 				'simple',
 				'variable',
@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			public $api_user_monitor;
 
 			public static function instance() {
-				if( is_null( self::$_instance  ) ) {
+				if ( is_null( self::$_instance  ) ) {
 					self::$_instance = new self();
 				}
 				return self::$_instance;
@@ -78,9 +78,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 					return;
 				}
 
-				$this->pricewaiter_settings = get_option( 'woocommerce_pricewaiter_settings' );
+				$this->pricewaiter_settings    = get_option( 'woocommerce_pricewaiter_settings' );
 				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
-				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
+				$this->supported_cost_plugins  = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
 
 				// Include Required Files
 				$this->includes();
@@ -94,9 +94,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 					* Filter API product response to inject pricewaiter data
 					*/
 					add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
-					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
+					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter' ), 10, 4 );
 				} else if ( is_admin() ) {
-					$this->notice_handler = new WC_PriceWaiter_Notice_Handler();
+					$this->notice_handler   = new WC_PriceWaiter_Notice_Handler();
 					$this->api_user_monitor = new WC_PriceWaiter_API_User_Monitor();
 					$this->product_settings = new WC_PriceWaiter_Product_Settings();
 					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
@@ -138,9 +138,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				/**
 				* Check for any supported plugins to use for cost/margin data
 				*/
-				if( isset( $this->supported_cost_plugins ) ) {
-					foreach ($this->supported_cost_plugins as $plugin => $meta_fields) {
-						if( class_exists($plugin) ) {
+				if ( isset( $this->supported_cost_plugins ) ) {
+					foreach ( $this->supported_cost_plugins as $plugin => $meta_fields ) {
+						if ( class_exists( $plugin ) ) {
 							$this->cost_plugin_installed = true;
 							$this->cost_plugin_fields = $meta_fields;
 							break;
@@ -170,9 +170,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 				$cost_field = isset( $this->cost_plugin_fields[$product->product_type] ) ? $product->product_type : 'simple';
 				$product_data['pricewaiter'] = array(
-					'cost'				=> get_post_meta( $product->id, $this->cost_plugin_fields[$cost_field], true ),
-					'button'			=> get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
-					'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
+					'cost'             => get_post_meta( $product->id, $this->cost_plugin_fields[$cost_field], true ),
+					'button'           => get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
+					'conversion_tools' => get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
 				);
 
 				return $product_data;
@@ -183,22 +183,22 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			*/
 			function alert_woocommerce_required() {
 				?>
-					<div class="error">
+					<div class = "error">
 						<h3><?php _e( 'WooCommerce required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h2>
-						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN) , $this->wc_minimum_version ); ?></p>
-						<p><a href="http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
+						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN ) , $this->wc_minimum_version ); ?></p>
+						<p><a href = "http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
 					</div>
 				<?
 			}
 			/**
 			* Notify Admin to update WooCommerce to minimum version
 			*/
-			public function alert_woocommerce_minimum_version(){
+			public function alert_woocommerce_minimum_version() {
 				?>
-					<div class="error">
+					<div class = "error">
 						<h3><?php _e( 'WooCommerce update required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h3>
 						<p><?php printf( __( "It appears you're currently using WooCommerce v%s", WC_PriceWaiter::TEXT_DOMAIN ), WC()->version ); ?></p>
-						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $this->wc_minimum_version); ?></p>
+						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $this->wc_minimum_version ); ?></p>
 					</div>
 				<?php
 			}
@@ -246,7 +246,7 @@ register_deactivation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
 function pw_staging_ipn_endpoint( $url ) {
     return 'https://api-staging.pricewaiter.com/order/verify';
 }
-add_filter('wc_pricewaiter_ipn_endpoint', 'pw_staging_ipn_endpoint');
+add_filter( 'wc_pricewaiter_ipn_endpoint', 'pw_staging_ipn_endpoint' );
 
 function pw_staging_api_sign_up_url( $url ) {
 	return 'https://api-staging.pricewaiter.com/store-signups';

@@ -3,16 +3,16 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
+if ( !class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 	class WC_PriceWaiter_Embed {
-		public function __construct(){
+		public function __construct() {
 			global $prouct, $woocommerce, $current_user;
 
 			$this->api_key = wc_pricewaiter()->get_pricewaiter_setting( 'api_key' );
 			$this->button_wrapper_style = preg_replace( '/\s+/' , ' ', wc_pricewaiter()->get_pricewaiter_setting( 'button_wrapper_style' ) );
 
-			if ($this->can_embed()) {
+			if ( $this->can_embed() ) {
 
 				// PriceWaiterOptions and button
 				$this->embed_code();
@@ -22,7 +22,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				* - wp_enqueue_script doesn't allow async attribute
 				* - allow developers to customize this priority
 				*/
-				add_action( 'wp_footer', array( $this, 'widget_scripts' ), apply_filters( 'wc_pricewaiter_widget_script_priority', 10) );
+				add_action( 'wp_footer', array( $this, 'widget_scripts' ), apply_filters( 'wc_pricewaiter_widget_script_priority', 10 ) );
 			}
 		}
 
@@ -33,7 +33,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			global $product;
 
 			// Only allow on single pages for now.
-			if (is_single() && in_array( $product->product_type, wc_pricewaiter()->supported_product_types ) ) {
+			if ( is_single() && in_array( $product->product_type, wc_pricewaiter()->supported_product_types ) ) {
 				return true;
 			}
 
@@ -45,14 +45,14 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			if ( $product->is_type( 'variable' ) ) {
 				// sets default product data to the first variation.
-				$children = $product->get_children();
-				$first_child = $product->get_child( $children[0] );
-				$product_data = WC_PriceWaiter_Product::get_data( $first_child );
-				$product_meta = WC_PriceWaiter_Product::get_meta( $first_child );
+				$children       = $product->get_children();
+				$first_child    = $product->get_child( $children[0] );
+				$product_data   = WC_PriceWaiter_Product::get_data( $first_child );
+				$product_meta   = WC_PriceWaiter_Product::get_meta( $first_child );
 				$variation_data = array();
 				$variation_meta = array();
 				foreach ( $product->get_children() as $key => $value ) {
-					$variation_id = $product->get_child( $value );
+					$variation_id           = $product->get_child( $value );
 					$variation_data[$value] = WC_PriceWaiter_Product::get_data( $variation_id );
 					$variation_meta[$value] = WC_PriceWaiter_Product::get_meta( $variation_id );
 				}

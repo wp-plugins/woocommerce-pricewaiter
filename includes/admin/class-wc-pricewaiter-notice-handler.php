@@ -2,7 +2,7 @@
 /**
  * PriceWaiter Notice Handler
  *
- * 
+ *
  *
  */
 class WC_PriceWaiter_Notice_Handler {

@@ -1,7 +1,7 @@
-<?php 
+<?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 if ( ! class_exists( 'WC_PriceWaiter_Product' ) ):
-	
+
 class WC_PriceWaiter_Product {
 
 	/**
@@ -13,12 +13,12 @@ class WC_PriceWaiter_Product {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
 		return array(
-			'sku' 				=> $product->id,
-			'name' 				=> $product->get_title(),
-			'description'		=> $product->post->post_excerpt,
-			'regular_price'		=> $product->get_regular_price(),
-			'price' 			=> $product->get_price(),
-			'image'				=> has_post_thumbnail( $product->id ) ? wp_get_attachment_url( $product->get_image_id() ) : ''
+			'sku'           => $product->id,
+			'name'          => $product->get_title(),
+			'description'   => $product->post->post_excerpt,
+			'regular_price' => $product->get_regular_price(),
+			'price'         => $product->get_price(),
+			'image'         => has_post_thumbnail( $product->id ) ? wp_get_attachment_url( $product->get_image_id() ) : ''
 		);
 	}
 
@@ -31,12 +31,12 @@ class WC_PriceWaiter_Product {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
 		$metadata = array(
-			'sku'				=> $product->get_sku()
+			'sku'           => $product->get_sku()
 		);
 
 		return apply_filters( 'wc_pricewaiter_product_metadata', $metadata, $product );
 	}
-		
+
 	/**
 	* Checks various if product is purchasable and if PriceWaiter is enabled
 	* @param WC_Product|int product object or product id
@@ -49,7 +49,7 @@ class WC_PriceWaiter_Product {
 
 		// Allow override on whether PriceWaiter can be used for the current product
 		$pricewaiter_disabled = apply_filters( 'wc_pricewaiter_product_disable', $pricewaiter_disabled, $product );
-		
+
 		return $product->is_purchasable() && !$pricewaiter_disabled ? 'true' : 'false';
 	}
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class WC_PriceWaiter_Product_Settings {
@@ -7,7 +7,7 @@ class WC_PriceWaiter_Product_Settings {
 
 		// add PriceWaiter Disable field to products under 'General' tab
 		add_action( 'woocommerce_product_options_sku', array( $this, 'add_pricewaiter_fields_to_product' ) );
-		
+
 		// save PriceWaiter fields on products
 		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product_pricewaiter' ), 10, 2 );
 
@@ -25,21 +25,21 @@ class WC_PriceWaiter_Product_Settings {
 		}
 		woocommerce_wp_checkbox(
 			array(
-				'id'				=> '_wc_pricewaiter_disabled',
-				'class'				=> 'checkbox',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> __( 'Disable PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN ),
+				'id'            => '_wc_pricewaiter_disabled',
+				'class'         => 'checkbox',
+				'wrapper_class' => $wrapper_class_string,
+				'label'         => __( 'Disable PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'   => __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN ),
 
 			)
 		);
 		woocommerce_wp_checkbox(
 			array(
-				'id'				=> '_wc_pricewaiter_conversion_tools_disabled',
-				'class'				=> 'checkbox',
-				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
+				'id'            => '_wc_pricewaiter_conversion_tools_disabled',
+				'class'         => 'checkbox',
+				'wrapper_class' => $wrapper_class_string,
+				'label'         => __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'   => __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
 			)
 		);
 	}
@@ -51,7 +51,7 @@ class WC_PriceWaiter_Product_Settings {
 		// Update checkbox for disabling PriceWaiter button
 		$checkbox_disabled = isset( $_POST['_wc_pricewaiter_disabled'] ) ? 'yes' : 'no';
 		update_post_meta( $post_id, '_wc_pricewaiter_disabled', $checkbox_disabled );
-		
+
 		// Update checkbox for enabled Conversion Tools
 		$checkbox_conversion = isset( $_POST['_wc_pricewaiter_conversion_tools_disabled'] ) ? 'yes' : 'no';
 		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools_disabled', $checkbox_conversion );
