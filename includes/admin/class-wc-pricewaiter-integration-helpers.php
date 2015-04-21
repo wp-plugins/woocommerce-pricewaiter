@@ -135,9 +135,9 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
                 'woo_api_secret'   => $api_user->woocommerce_api_consumer_secret,
                 'woo_api_endpoint' => get_woocommerce_api_url( '' ),
 
-                'admin_email'     => $user->user_email,
-                'admin_firstname' => $user->user_firstname,
-                'admin_lastname'  => $user->user_lastname,
+                'admin_email'      => $user->user_email,
+                'admin_first_name' => $user->user_firstname,
+                'admin_last_name'  => $user->user_lastname,
 
                 'store_name'               => get_bloginfo( 'name' ),
                 'store_url'                => get_home_url(null, '/'),
