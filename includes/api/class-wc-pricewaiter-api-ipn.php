@@ -28,6 +28,8 @@ class WC_PriceWaiter_API_Ipn {
     public function __construct() {
         // Payment listener/API hook
         add_action( 'wc_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
+
+        $this->log = new WC_Logger;
     }
 
     /**
@@ -37,8 +39,12 @@ class WC_PriceWaiter_API_Ipn {
         // Allow custom endpoint for dev
         $this->endpoint = apply_filters( 'wc_pricewaiter_ipn_endpoint', $this->endpoint );
 
+        $this->log->add( 'pricewaiter-ipn', 'NEW IPN REQUEST ' . date('Y-m-d h:i:s') . ' -----------------------------------' );
+        $this->log->add( 'pricewaiter-ipn', 'IPN Endpoint: ' . $this->endpoint );
+        $this->log->add( "pricewaiter-ipn", "PriceWaiter Post Data: \n" . print_r( $ipn_response, true ) );
+
         // Get received values from post data
-        $validate_ipn = stripslashes_deep( $ipn_response );
+        $validate_ipn = $ipn_response; // stripslashes_deep( $ipn_response );
 
         // Send back post vars to PriceWaiter
         $params = array(
@@ -56,8 +62,12 @@ class WC_PriceWaiter_API_Ipn {
 
         // check to see if the request was valid
         if ( ! is_wp_error( $response ) && $response['response']['code'] >= 200 && $response['response']['code'] < 300 && $response['body'] == '1' ) {
+        
             return true;
         }
+
+        $this->log->add( "pricewaiter-ipn", "IPN Failed. WooCommerce Post Data: \n" . print_r( $params['body'], true ) );
+        $this->log->add( "pricewaiter-ipn", "IPN Failed. PriceWaiter Response Data: \n" . print_r( $response, true ) );
 
         return false;
     }
@@ -73,6 +83,8 @@ class WC_PriceWaiter_API_Ipn {
         if ( $ipn_response && $this->check_ipn_request_is_valid( $ipn_response ) ) {
 
             header( 'HTTP/1.1 200 OK' );
+
+            $this->log->add( 'pricewaiter-ipn', 'Valid IPN Request.' );
 
             $this->successful_request( $ipn_response );
 
@@ -96,6 +108,7 @@ class WC_PriceWaiter_API_Ipn {
 
             // Check if this order was already created. Bail if it was
             if ( $this->order_already_exists( $posted['pricewaiter_id'] ) ) {
+                $this->log->add( 'pricewaiter-ipn', 'Order Already Exists. PriceWaiter ID#: ' . $posted['pricewaiter_id'] );
                 wp_die( "PriceWaiter Order Already Exists - {$posted['pricewaiter_id']}", "PriceWaiter IPN", array( 'response' => 409 ) );
             }
 
