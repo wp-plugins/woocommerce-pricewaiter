@@ -25,11 +25,6 @@
 			$saveButtons.removeAttr('disabled');
 		}
 
-		$('#mainform').on('submit', function() {
-			e.preventDefault();
-			e.stopPropagation();
-		});
-
 		$('#save_wc_pricewaiter_setup_api_user_new').on('click', function(e) {
 
 			e.preventDefault();
