@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class WC_PriceWaiter_Product_Settings {
 	public function __construct() {
-		global $woocommerce, $wc_pricewaiter;
+		global $woocommerce;
 
 		// add PriceWaiter Disable field to products under 'General' tab
 		add_action( 'woocommerce_product_options_sku', array( $this, 'add_pricewaiter_fields_to_product' ) );
@@ -18,10 +18,9 @@ class WC_PriceWaiter_Product_Settings {
 	* to toggle the PriceWaiter button on the product page
 	*/
 	public function add_pricewaiter_fields_to_product() {
-		global $wc_pricewaiter;
 
 		$wrapper_class_string = '';
-		foreach ($wc_pricewaiter->supported_product_types as $type) {
+		foreach ( wc_pricewaiter()->supported_product_types as $type ) {
 			$wrapper_class_string .= 'show_if_' . $type . ' ';
 		}
 		woocommerce_wp_checkbox(

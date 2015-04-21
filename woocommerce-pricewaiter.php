@@ -46,6 +46,15 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				'variable',
 				'variation'
 			);
+			public $pricewaiter_settings;
+			protected static $_instance = null;
+
+			public static function instance() {
+				if( is_null( self::$_instance  ) ) {
+					self::$_instance = new self();
+				}
+				return self::$_instance;
+			}
 
 			public function __construct() {
 				add_action( 'plugins_loaded', array( $this, 'init' ) );
@@ -62,27 +71,28 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					return;
 				}
 
-				// Include Required Files
-				$this->includes();
-
-				// Init API
-				$this->api = new WC_PriceWaiter_API();
-
+				$this->pricewaiter_settings = get_option( 'woocommerce_pricewaiter_settings' );
 				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
 				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
 
+				// Include Required Files
+				$this->includes();
 				$this->setup_cost_plugin();
 
-				require_once( 'includes/class-wc-pricewaiter-product.php' );
-				require_once( 'includes/class-wc-pricewaiter-embed.php' );
-				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
-				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
-				add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
-				/**
-				* Filter API product response to inject pricewaiter data
-				*/
-				$this->product_settings = new WC_PriceWaiter_Product_Settings();
-				add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
+				// Init API
+				$this->api = new WC_PriceWaiter_API();
+								
+				if ( !is_admin() && $this->get_pricewaiter_setting( 'setup_complete' ) ) {
+					/**
+					* Filter API product response to inject pricewaiter data
+					*/
+					add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
+					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
+				} else if ( is_admin() ) {
+					$this->product_settings = new WC_PriceWaiter_Product_Settings();
+					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
+				}
+
 			}
 
 			/**
@@ -91,6 +101,17 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			private function includes() {
 				// API Class
 				include_once( 'includes/class-wc-pricewaiter-api.php' );
+				require_once( 'includes/class-wc-pricewaiter-product.php' );
+				require_once( 'includes/class-wc-pricewaiter-embed.php' );
+
+				if ( is_admin() ) {
+					$this->admin_includes();
+				}
+			}
+
+			private function admin_includes() {
+				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
 			}
 
 			public function add_pricewaiter_integration( $integrations ) {
@@ -117,6 +138,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					include_once( 'includes/admin/class-wc-pricewaiter-costs.php' );
 					$this->active_cost_plugin = new WC_PriceWaiter_Costs();
 				}
+			}
+
+			public function add_pricewaiter_embed() {
+				new WC_PriceWaiter_Embed();
 			}
 
 			/**
@@ -152,9 +177,16 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					</div>
 				<?
 			}
+
+			public function get_pricewaiter_setting( $key ) {
+				return isset( $this->pricewaiter_settings[$key] ) ? $this->pricewaiter_settings[$key] : false;
+			}
 		}
 
-		$GLOBALS['wc_pricewaiter'] = new WC_PriceWaiter( __FILE__ );
+		function wc_pricewaiter() {
+			return WC_PriceWaiter::instance();
+		}
+		$GLOBALS['wc_pricewaiter'] = wc_pricewaiter();
 	}
 } else {
 	function alert_woocommerce_required() {
