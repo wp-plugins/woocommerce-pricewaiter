@@ -12,10 +12,19 @@ class WC_PriceWaiter_Product {
 	public static function get_data( $product ) {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
+		// Distinguish between the product's ID and the actual variants id.
+		$product_id = ( !empty( $product->variation_id ) ) ? $product->variation_id : $product->id;
+
+		// Set sku to post_id if no sku avalable
+		// NOTE: get_sku() returns parent sku if child not set
+		$product_sku = $product->get_sku();
+		$product_sku = ( !empty( $product_sku ) ) ? $product_sku : $product_id;
+
+		// Formatted keys to match PriceWaiterOptions.product obj - https://docs.pricewaiter.com/widget/documentation.html#_widget/product.md
 		return array(
-			'sku'           => $product->id,
+			'id'            => $product_id,
+			'sku'           => $product_sku,
 			'name'          => $product->get_title(),
-			'description'   => $product->post->post_excerpt,
 			'regular_price' => $product->get_regular_price(),
 			'price'         => $product->get_price(),
 			'image'         => has_post_thumbnail( $product->id ) ? wp_get_attachment_url( $product->get_image_id() ) : ''

@@ -93,14 +93,14 @@ if ( !class_exists( 'WC_PriceWaiter_Embed' ) ):
 								$metadata_output[] = '"' . $key . '": "' . $value . '"';
 							}
 						}
-						if ( count( $metadata_output ) ) {
-							echo "
-					PriceWaiterOptions.metadata = {
-						" . implode( ",\n", $metadata_output ) . "
-					}\n";
-						}
 						
-					 ?>
+						// IMPORTANT: _wc_post_id meta is required
+						// used for inventory / cost lookups and future REST API order callback
+						$metadata_output[] = '"_wc_post_id": "' . $product->id . '"';
+					?>
+					PriceWaiterOptions.metadata = {
+						<?php echo implode( ", ", $metadata_output ) . "\n"; ?>
+					};
 				})(document, window, jQuery);
 			</script>
 			<?php
