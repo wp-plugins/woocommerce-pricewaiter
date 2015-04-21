@@ -123,7 +123,8 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 		}
 
 		public function widget_scripts() {
-			echo '<script src="https://widget.pricewaiter.com/script/' . $this->api_key . '.js" async></script>';
+			$widget_script_url = apply_filters( 'wc_pricewaiter_widget_script_url', 'https://widget.pricewaiter.com/script/' . $this->api_key .'.js' );
+			echo '<script src="' . $widget_script_url . '" async></script>';
 		}
 
 		public function add_button() {
