@@ -186,7 +186,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN ) , $this->wc_minimum_version ); ?></p>
 						<p><a href="http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
 					</div>
-				<?
+				<?php
 			}
 			/**
 			* Notify Admin to update WooCommerce to minimum version
