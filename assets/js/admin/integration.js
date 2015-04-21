@@ -8,9 +8,10 @@ jQuery(document).ready(function($) {
 
     function pricewaiter_handle_user_creation(response) {
         if (response.success) {
-            $('#wc_pricewaiter_setup_step_1').slideUp();
-            $('#wc_pricewaiter_setup_step_2').slideDown();
-            $('.wc_pricewaiter_setup_defaults').removeClass('wc_pricewaiter_setup_defaults');
+            location.reload();
+            // $('#wc_pricewaiter_setup_step_1').slideUp();
+            // $('#wc_pricewaiter_setup_step_2').slideDown();
+            // $('.wc_pricewaiter_setup_defaults').removeClass('wc_pricewaiter_setup_defaults');
         } else {
             if (response.data && response.data.errors) {
                 pricewiater_create_error(response.data.errors);
