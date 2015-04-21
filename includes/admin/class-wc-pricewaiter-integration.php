@@ -84,9 +84,9 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		* Check Cost/Margin plugins for products and use their values
 		*/
 		// If API key is set, add the button, if not, notify Admin to add Key
-		if( isset( $this->api_key ) && $this->api_key !== '' ){
+		if( isset( $_POST['woocommerce_pricewaiter_api_key'] ) && $_POST['woocommerce_pricewaiter_api_key'] ) {
 			add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
-		}else{
+		}else if( $this->api_key == "" ) {
 			add_action( 'admin_notices', array( $this, 'alert_admin_to_activate' ) );
 		}
 
@@ -107,13 +107,10 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		?>
 		<div class="update-nag">
 			<p>
-				<?php _e( 'Don&rsquo;t lose potential customers to the competition. Complete your PriceWaiter activation now.', WC_PriceWaiter::TEXT_DOMAIN ); ?>
+				<?php _e( 'Don&rsquo;t lose potential customers to the competition. Complete your PriceWaiter configuration now.', WC_PriceWaiter::TEXT_DOMAIN ); ?>
 			</p>
-			<a href="https://pricewaiter.com" class="button-primary">
-				<?php _e( 'Sign Up ', WC_PriceWaiter::TEXT_DOMAIN ); ?>
-			</a>
-			<a href="<?php echo add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ); ?>" class="button-secondary">
-				<?php _e( 'Add your API Key', WC_PriceWaiter::TEXT_DOMAIN ); ?>
+			<a href="<?php echo add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ); ?>" class="button-primary">
+				<?php _e( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ); ?>
 			</a>
 		</div>
 		<?php
