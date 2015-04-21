@@ -183,10 +183,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			*/
 			function alert_woocommerce_required() {
 				?>
-					<div class = "error">
+					<div class="error">
 						<h3><?php _e( 'WooCommerce required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h2>
 						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN ) , $this->wc_minimum_version ); ?></p>
-						<p><a href = "http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
+						<p><a href="http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
 					</div>
 				<?
 			}
@@ -195,7 +195,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			*/
 			public function alert_woocommerce_minimum_version() {
 				?>
-					<div class = "error">
+					<div class="error">
 						<h3><?php _e( 'WooCommerce update required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h3>
 						<p><?php printf( __( "It appears you're currently using WooCommerce v%s", WC_PriceWaiter::TEXT_DOMAIN ), WC()->version ); ?></p>
 						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $this->wc_minimum_version ); ?></p>
