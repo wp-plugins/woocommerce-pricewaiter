@@ -254,14 +254,14 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
         }
 
         public static function load_setup_screen() {
-
+            
             // Integrations screen styles
-            wp_enqueue_style( 'wc-pricewaiter-admin', plugins_url( '/woocommerce-pricewaiter/assets/css/admin.css' ), null, WC_PriceWaiter::VERSION );
+            wp_enqueue_style( 'wc-pricewaiter-admin', plugins_url( '/woocommerce-pricewaiter/assets/css/admin.css' ), null, 1 );
 
             if ( !self::has_configured( 'wc_api_user' ) ) {
 
                 // Our js callbacks
-                wp_enqueue_script( 'wc-pricewaiter-integration', plugins_url( '/woocommerce-pricewaiter/assets/js/admin/integration.js' ), array( 'jquery' ), WC_PriceWaiter::VERSION, true );
+                wp_enqueue_script( 'wc-pricewaiter-integration', plugins_url( '/woocommerce-pricewaiter/assets/js/admin/integration.js' ), array( 'jquery' ), 1, true );
 
                 // Get administrator list for <select>
                 $admin_users = get_users( array(
