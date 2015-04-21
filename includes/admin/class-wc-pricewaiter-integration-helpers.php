@@ -130,29 +130,29 @@ if ( !class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 			$shipping_country_string = join( ', ', $shipping_countries );
 
 			$store_args = array(
-				'platform'         => 'woo',
-				'woo_api_key'      => $api_user->woocommerce_api_consumer_key,
-				'woo_api_secret'   => $api_user->woocommerce_api_consumer_secret,
-				'woo_api_endpoint' => get_woocommerce_api_url( '' ),
+				'platform'                        => 'woo',
+				'woo_api_key'                     => $api_user->woocommerce_api_consumer_key,
+				'woo_api_secret'                  => $api_user->woocommerce_api_consumer_secret,
+				'woo_api_endpoint'                => get_woocommerce_api_url( '' ),
 				
-				'admin_email'      => $user->user_email,
-				'admin_first_name' => $user->user_firstname,
-				'admin_last_name'  => $user->user_lastname,
+				'admin_email'                     => $user->user_email,
+				'admin_first_name'                => $user->user_firstname,
+				'admin_last_name'                 => $user->user_lastname,
 				
-				'store_name'               => get_bloginfo( 'name' ),
-				'store_url'                => get_home_url( null, '/' ),
-				'store_country'            => $locale->get_base_country(),
-				'store_state'              => $locale->get_base_state(),
-				'store_city'               => $locale->get_base_city(),
-				'store_zip'                => $locale->get_base_postcode(),
-				'store_shipping_countries' => $shipping_country_string,
-				'store_currency'           => get_woocommerce_currency(),
-				'store_paypal_email'       => $paypal->receiver_email,
-				'store_order_callback_url' => get_home_url( null, '/pricewaiter-api/ipn' ),
-				'store_checkout_redirect_method' => 'POST',
+				'store_name'                      => get_bloginfo( 'name' ),
+				'store_url'                       => get_home_url( null, '/' ),
+				'store_country'                   => $locale->get_base_country(),
+				'store_state'                     => $locale->get_base_state(),
+				'store_city'                      => $locale->get_base_city(),
+				'store_zip'                       => $locale->get_base_postcode(),
+				'store_shipping_countries'        => $shipping_country_string,
+				'store_currency'                  => get_woocommerce_currency(),
+				'store_paypal_email'              => $paypal->receiver_email,
+				'store_order_callback_url'        => get_home_url( null, '/pricewaiter-api/ipn' ),
+				'store_checkout_redirect_method'  => 'POST',
 				'store_checkout_redirect_enabled' => 1,
-				'store_checkout_redirect_url' => wc_get_endpoint_url( 'order-received', '', get_permalink( wc_get_page_id( 'checkout' ) ) ) . '?utm_nooverride=1',
-				'store_twitter_handle'     => ''
+				'store_checkout_redirect_url'     => wc_get_endpoint_url( 'order-received', '', get_permalink( wc_get_page_id( 'checkout' ) ) ) . '?utm_nooverride=1',
+				'store_twitter_handle'            => ''
 			);
 
 			return array_merge( $store_args, $additional_args );
