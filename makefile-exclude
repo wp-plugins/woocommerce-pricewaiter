@@ -1,0 +1,8 @@
+.*
+*~
+*.DS_Store
+*.zip
+makefile
+makefile-exclude
+README.md
+woocommerce-pricewaiter

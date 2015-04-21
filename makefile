@@ -2,11 +2,8 @@
 # Makefile
 #
 zip:
-	cp README.md readme.txt
-	zip -r woocommerce-pricewaiter.zip ./ \
-	-x '.*' \
-	-x '*~' \
-	-x '*.DS_Store' \
-	-x '*.zip' \
-	-x 'makefile' \
-	-x 'README.md';
+	mkdir woocommerce-pricewaiter
+	rsync -vr --exclude-from=makefile-exclude . woocommerce-pricewaiter 
+	cp README.md woocommerce-pricewaiter/readme.txt
+	zip -r ../woocommerce-pricewaiter-v1.0.zip woocommerce-pricewaiter
+	rm -rf woocommerce-pricewaiter
