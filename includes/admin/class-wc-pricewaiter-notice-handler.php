@@ -5,6 +5,7 @@
  *
  *
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class WC_PriceWaiter_Notice_Handler {
 	private $admin_notices = array();
 
