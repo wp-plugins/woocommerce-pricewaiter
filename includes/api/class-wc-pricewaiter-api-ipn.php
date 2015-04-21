@@ -222,15 +222,6 @@ class WC_PriceWaiter_API_Ipn {
 
             $order->set_total( $posted['total'], 'total' );
 
-            // Add a private (non-customer facing) note to the order
-            $order_note_data = array(
-                'intro' => 'This order was created via PriceWaiter checkout!',
-                'pricewaiter_id' => 'PriceWaiter ID: ' . $posted['pricewaiter_id'],
-                'transaction_id' => 'Transaction ID: ' . $posted['transaction_id'],
-                'payment_method' => 'Payment Method: ' . $posted['payment_method']
-            );
-
-            $order->add_order_note( implode( "\n", $order_note_data ) );
 
             // Custom PriceWaiter order meta
             update_post_meta( $order->id, '_pw_pricewaiter_id', $posted['pricewaiter_id'] );
