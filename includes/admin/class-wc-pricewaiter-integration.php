@@ -77,13 +77,13 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				),
 				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
+			),
+			'debug'	=> array(
+				'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'				=> 'checkbox',
+				'label'				=> __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN )
 			)
-			// ,'debug'	=> array(
-			// 	'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
-			// 	'type'				=> 'checkbox',
-			// 	'label'				=> __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
-			// 	'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN )
-			// )
 		);
 	}
 
@@ -153,6 +153,12 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				}
 			}
 		}
+
+		// Step one from config.
+		if ( !get_option( '_wc_pricewaiter_api_user_id' ) ) {
+			$completed = false;
+		}
+
 		$settings['setup_complete'] = $completed;
 
 		return $settings;
