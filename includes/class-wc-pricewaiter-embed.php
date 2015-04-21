@@ -10,17 +10,17 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			$this->api_key = $api_key;
 
-			if ($this->pw_can_embed()) {
+			if ($this->can_embed()) {
 
 				// PriceWaiterOptions and button
-				$this->pw_embed_code();
+				$this->embed_code();
 
 				/**
 				* Hook widget script include into the footer for best site performance
 				* - wp_enqueue_script doesn't allow async attribute
 				* - allow developers to customize this priority
 				*/
-				add_action( 'wp_footer', array( $this, 'pw_widget_scripts' ), apply_filters( 'pw_widget_script_priority', 10) );
+				add_action( 'wp_footer', array( $this, 'widget_scripts' ), apply_filters( 'wc_pricewaiter_widget_script_priority', 10) );
 
 			}
 
@@ -30,7 +30,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 		/**
 		* Whether or not to output any PW code
 		*/
-		public function pw_can_embed() {
+		public function can_embed() {
 			global $product, $wc_pricewaiter;
 
 			// Only allow on single pages for now.
@@ -42,7 +42,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 		}
 		
-		public function pw_embed_code() {
+		public function embed_code() {
 			global $product, $woocommerce, $current_user;
 
 			if ( $product->is_type( 'variable' ) ) {
@@ -63,7 +63,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				$product_meta = WC_PriceWaiter_Product::get_meta( $product );
 			}
 
-			do_action( 'woocommerce-pricewaiter-before-button' );
+			do_action( 'wc_pricewaiter_before_button' );
 			?>
 			<div id="pricewaiter_button_wrap" class="pricewaiter_button_wrap">
 				<span id="pricewaiter"></span>
@@ -122,20 +122,20 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				})(document, window, jQuery);
 			</script>
 			<?php
-			do_action( 'woocommerce-pricewaiter-after-button' );
+			do_action( 'wc_pricewaiter_after_button' );
 
 		}
 
-		public function pw_widget_scripts() {
+		public function widget_scripts() {
 			echo '<script src="https://widget.pricewaiter.com/script/' . $this->api_key . '.js" async></script>';
 		}
 
 
-		public function pw_add_button() {
+		public function add_button() {
 
 		}
 
-		public function pw_get_user_info() {
+		public function get_user_info() {
 
 		}
 	}

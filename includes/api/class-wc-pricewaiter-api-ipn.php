@@ -29,7 +29,7 @@ class WC_PriceWaiter_API_Ipn {
     public function __construct() {
 
         // Payment listener/API hook
-        add_action( 'woocommerce_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
+        add_action( 'wc_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
 
     }
 
@@ -39,7 +39,7 @@ class WC_PriceWaiter_API_Ipn {
     public function check_ipn_request_is_valid( $ipn_response ) {
 
         // Allow custom endpoint for dev
-        $this->endpoint = apply_filters( 'pricewaiter_ipn_endpoint', $this->endpoint );
+        $this->endpoint = apply_filters( 'wc_pricewaiter_ipn_endpoint', $this->endpoint );
 
         // Get received values from post data
         $validate_ipn = stripslashes_deep( $ipn_response );
@@ -222,8 +222,8 @@ class WC_PriceWaiter_API_Ipn {
 
 
             // Custom PriceWaiter order meta
-            update_post_meta( $order->id, '_pw_pricewaiter_id', $posted['pricewaiter_id'] );
-            update_post_meta( $order->id, '_pw_payment_method', $posted['payment_method'] );
+            update_post_meta( $order->id, '_wc_pricewaiter_id', $posted['pricewaiter_id'] );
+            update_post_meta( $order->id, '_wc_pricewaiter_payment_method', $posted['payment_method'] );
 
             // Set the transaction id as the one PriceWaiter got from the processor
             update_post_meta( $order->id, '_transaction_id', $posted['transaction_id'] );
@@ -254,11 +254,11 @@ class WC_PriceWaiter_API_Ipn {
         $args = array(
             'post_type' => 'shop_order',
             'post_status' => 'any',
-            'meta_key' => '_pw_pricewaiter_id',
+            'meta_key' => '_wc_pricewaiter_id',
             'posts_per_page' => '-1',
             'meta_query' => array(
                 array(
-                    'key'     => '_pw_pricewaiter_id',
+                    'key'     => '_wc_pricewaiter_id',
                     'value'   => $pricewaiter_id,
                     'compare' => '='
                 )

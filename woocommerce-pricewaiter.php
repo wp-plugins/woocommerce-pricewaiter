@@ -73,7 +73,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					require_once( 'includes/class-wc-pricewaiter-product.php' );
 					require_once( 'includes/class-wc-pricewaiter-embed.php' );
 					require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
-					add_filter( 'woocommerce_integrations', array( $this, 'add_pw_integration' ) );
+					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
 				} else {
 					// Ya do nothin' homie.
 				}
@@ -90,7 +90,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 
 
-			public function add_pw_integration() {
+			public function add_pricewaiter_integration( $integrations ) {
 				$integrations[] = 'WC_PriceWaiter_Integration';
 				return $integrations;
 			}

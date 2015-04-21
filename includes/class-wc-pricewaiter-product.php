@@ -48,7 +48,7 @@ class WC_PriceWaiter_Product {
 		$pricewaiter_disabled = get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? true : false;
 
 		// Allow override on whether PriceWaiter can be used for the current product
-		$pricewaiter_disabled = apply_filters( 'pw_product_disable_pricewaiter', $pricewaiter_disabled, $product );
+		$pricewaiter_disabled = apply_filters( 'wc_pricewaiter_product_disable', $pricewaiter_disabled, $product );
 		
 		return $product->is_purchasable() && !$pricewaiter_disabled ? 'true' : 'false';
 	}
@@ -60,10 +60,10 @@ class WC_PriceWaiter_Product {
 	public static function is_using_conversion_tools( $product ) {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
-		$conversion_tools_enabled = get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true;
+		$conversion_tools_enabled = get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disable', true ) == 'yes' ? false : true;
 
 		// Allow override on whether PriceWaiter is using Conversion Tools for the current product
-		$conversion_tools_enabled = apply_filters( 'pw_product_conversion_tools', $conversion_tools_enabled, $product );
+		$conversion_tools_enabled = apply_filters( 'wc_pricewaiter_product_conversion_tools', $conversion_tools_enabled, $product );
 
 		return $conversion_tools_enabled ? 'true' : 'false';
 	}

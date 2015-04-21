@@ -103,7 +103,7 @@ class WC_PriceWaiter_API {
                 $api_class = new $apiMethod();
 
             // Trigger actions
-            do_action( 'woocommerce_pricewaiter_api_' . $method );
+            do_action( 'wc_pricewaiter_api_' . $method );
 
             // Done, clear buffer and exit
             ob_end_clean();

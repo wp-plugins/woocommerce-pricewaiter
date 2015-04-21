@@ -8,11 +8,11 @@ function my_product_disable_pricewaiter($pricewaiter_disabled, $product) {
     return $pricewaiter_disabled;
 
 }
-add_filter('pw_product_disable_pricewaiter', 'my_product_disable_pricewaiter', '', 2);
+add_filter('wc_pricewaiter_product_disable', 'my_product_disable_pricewaiter', '', 2);
 ```
 
 ##### Supported Product Types 
-(default: simple, variable)
+(default: simple, variable, variation)
 
 ```
 function my_pw_supported_product_types($supported, $product) {
@@ -20,7 +20,7 @@ function my_pw_supported_product_types($supported, $product) {
     return $supported;
 
 }
-add_filter('pw_supported_product_types', 'my_pw_supported_product_types', '', 2);
+add_filter('wc_pricewaiter_supported_product_types', 'my_pw_supported_product_types', '', 2);
 ```
 
 ##### Widget Script Priority
@@ -32,7 +32,7 @@ function my_pw_widget_script_priority($priority) {
     return $priority;
 
 }
-add_filter('pw_widget_script_priority', 'my_pw_widget_script_priority');
+add_filter('wc_pricewaiter_widget_script_priority', 'my_pw_widget_script_priority');
 ```
 
 ##### Order IPN Callback
@@ -42,5 +42,5 @@ add_filter('pw_widget_script_priority', 'my_pw_widget_script_priority');
 function my_pricewaiter_ipn_endpoint($url) {
     return 'http://woo.pricewaiter.dev/ipntest.php';
 }
-add_filter('pricewaiter_ipn_endpoint', 'my_pricewaiter_ipn_endpoint');
+add_filter('wc_pricewaiter_ipn_endpoint', 'my_pricewaiter_ipn_endpoint');
 ```
