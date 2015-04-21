@@ -7,6 +7,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 	class WC_PriceWaiter_Embed {
 		public function __construct($api_key){
 			global $prouct, $woocommerce, $current_user;
+
 			$this->api_key = $api_key;
 			$this->pw_embed_code();
 
@@ -29,7 +30,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					$variation_id = $product->get_child( $value );
 					$variation_data[$value] = WC_PriceWaiter_Product::get_data( $variation_id );
 				}
-			}else{
+			} else {
 				$product_data = WC_PriceWaiter_Product::get_data( $product );
 			}
 
@@ -39,7 +40,6 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			<script>
 				var PriceWaiterOptions = {};
 				(function(document, window, $, undefined){
-					<?php echo 'console.log('.get_post_meta( $product->id, '_wc_pricewaiter_cost', true).');'; ?>
 					<?php if ( $product->has_child() ): ?>
 					$('#pricewaiter').appendTo('.single_variation_wrap');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
@@ -56,7 +56,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					PriceWaiterOptions.hide_quantity_field = <?php echo $product->is_sold_individually() ? 'true' : 'false'; ?>;
 					PriceWaiterOptions.onButtonClick = function() {
 						var cart_data = $('.cart').serializeArray();
-						console.dir(cart_data);
+
 						$.each(cart_data, function(k,v) {
 							if (v.name == 'quantity') {
 								PriceWaiter.setQuantity(parseInt(v.value,10));
