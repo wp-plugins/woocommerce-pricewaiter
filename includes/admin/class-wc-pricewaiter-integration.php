@@ -64,7 +64,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			'api_key' => array(
 				'title'				=> __( 'API Key', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'text',
-				'description'		=> __( 'Enter your PriceWaiter store API key. You can find this [continue with instructions...]', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Enter your PriceWaiter store API key.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true,
 				'default'			=> ''
 			),
@@ -74,7 +74,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'custom_attributes' => array(
 					'onclick'		=> "location.href='http://pricewaiter.com'"
 				),
-				'description'		=> __( 'Customize the PriceWaiter button by going to your PriceWaiter account', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Customize the PriceWaiter button by going to your PriceWaiter account.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
 			)
 			// ,'debug'	=> array(
