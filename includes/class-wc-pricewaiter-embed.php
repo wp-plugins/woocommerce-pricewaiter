@@ -55,14 +55,20 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			if ( $product->is_type( 'variable' ) ) {
 				// sets default product data to the first variation.
-				$product_data = WC_PriceWaiter_Product::get_data( $product->get_child( $product->get_children()[0] ) );
+				$children = $product->get_children();
+				$first_child = $product->get_child( $children[0] );
+				$product_data = WC_PriceWaiter_Product::get_data( $first_child );
+				$product_meta = WC_PriceWaiter_Product::get_meta( $first_child );
 				$variation_data = array();
+				$variation_meta = array();
 				foreach ( $product->get_children() as $key => $value ) {
 					$variation_id = $product->get_child( $value );
 					$variation_data[$value] = WC_PriceWaiter_Product::get_data( $variation_id );
+					$variation_meta[$value] = WC_PriceWaiter_Product::get_meta( $variation_id );
 				}
 			} else {
 				$product_data = WC_PriceWaiter_Product::get_data( $product );
+				$product_meta = WC_PriceWaiter_Product::get_meta( $product );
 			}
 
 			do_action( 'woocommerce-pricewaiter-before-button' );
@@ -76,7 +82,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					<?php if ( $product->is_type( 'variable' ) ): ?>
 					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
-					
+					var variation_meta = <?php echo json_encode( $variation_meta ); ?>;
 					<?php endif; ?>
 				
 					PriceWaiterOptions.product 		= <?php echo json_encode( $product_data ); ?>;
@@ -88,6 +94,13 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 						name: 	'<?php echo esc_attr($current_user->user_firstname) . " " . esc_attr($current_user->user_lastname); ?>'
 					};
 					PriceWaiterOptions.hide_quantity_field = <?php echo $product->is_sold_individually() ? 'true' : 'false'; ?>;
+					PriceWaiterOptions.metadata = {
+					<?php 
+						foreach ( $product_meta as $key => $value ) {
+							echo '"' . $key . '": "' . $value . '",';
+						}
+					 ?>
+					};
 					PriceWaiterOptions.onButtonClick = function() {
 						var cart_data = $('.cart').serializeArray();
 
@@ -101,11 +114,15 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 								}
 								if (v.name == 'variation_id') {
 									var variation = variation_data[v.value.toString()];
+									var variation_m = variation_meta[v.value.toString()];
 									PriceWaiter.setSKU(variation.sku);
 									PriceWaiter.setProduct(variation.name);
 									PriceWaiter.setRegularPrice(variation.regular_price);
 									PriceWaiter.setPrice(variation.price);
 									PriceWaiter.setProductImage(variation.image);
+									$.each( variation_m, function(mk,mv) {
+										PriceWaiter.setMetadata(mk,mv);
+									} );
 								}
 							}
 						});

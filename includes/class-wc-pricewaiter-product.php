@@ -29,6 +29,12 @@ class WC_PriceWaiter_Product {
 	*/
 	public static function get_meta( $product ) {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
+
+		$metadata = array(
+			'sku'				=> $product->get_sku()
+		);
+
+		return apply_filters( 'wc_pricewaiter_product_metadata', $metadata, $product );
 	}
 		
 	/**
