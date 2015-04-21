@@ -73,7 +73,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			<script>
 				var PriceWaiterOptions = {};
 				(function(document, window, $, undefined){
-					<?php if ( $product->has_child() ): ?>
+					<?php if ( $product->is_type( 'variable' ) ): ?>
 					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
 					
@@ -95,20 +95,19 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 							if (v.name == 'quantity') {
 								PriceWaiter.setQuantity(parseInt(v.value,10));
 							}
-							<?php if ( $product->is_type( 'variable' ) ): ?>
-							if (v.name.indexOf('attribute_') != -1) {
-								PriceWaiter.setProductOption(v.name.replace('attribute_', ''), v.value);
+							if ( typeof variation_data !== 'undefined' ) {
+								if (v.name.indexOf('attribute_') != -1) {
+									PriceWaiter.setProductOption(v.name.replace('attribute_', ''), v.value);
+								}
+								if (v.name == 'variation_id') {
+									var variation = variation_data[v.value.toString()];
+									PriceWaiter.setSKU(variation.sku);
+									PriceWaiter.setProduct(variation.name);
+									PriceWaiter.setRegularPrice(variation.regular_price);
+									PriceWaiter.setPrice(variation.price);
+									PriceWaiter.setProductImage(variation.image);
+								}
 							}
-							if (v.name == 'variation_id') {
-								var variation = variation_data[v.value.toString()];
-								PriceWaiter.setSKU(variation.sku);
-								PriceWaiter.setProduct(variation.name);
-								PriceWaiter.setRegularPrice(variation.regular_price);
-								PriceWaiter.setPrice(variation.price);
-								PriceWaiter.setProductImage(variation.image);
-							}
-							<?php endif; ?>
-
 						});
 					};
 				})(document, window, jQuery);
