@@ -4,10 +4,6 @@
  *
  * Handles requests to the ipn endpoint
  *
- * TODO:
- * - Version check woo for >= 2.2
- * - Check that order is not a duplicate w/ pw order meta
- *
  * @author      Sole Graphics
  * @category    API
  * @package     WooCommerce/API
