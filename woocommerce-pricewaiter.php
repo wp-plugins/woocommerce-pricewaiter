@@ -20,7 +20,25 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			const VERSION = "0.0.1";
 			const PLUGIN_ID = 'pw';
 			const TEXT_DOMAIN = 'woocommerce-pricewaiter';
-			public $supported_cost_plugins;
+			/**
+			* Main array key is the plugins primary class.
+			* The class is checked to see if plugin is active.
+			* 
+			* Sub array is used to store meta key locations
+			* 'product type' => 'post_meta key for stored cost'
+			*/
+			public $supported_cost_plugins = array(
+				'WC_COG' => array(
+					'simple'		=> '_wc_cog_cost',
+					'variable'		=> '_wc_cog_cost_variable',
+					'variation'		=> '_wc_cog_cost'
+				)
+			);
+			public $supported_product_types = array( 
+				'simple',
+				'variable',
+				'variation'
+			);
 
 			public function __construct() {
 
@@ -34,10 +52,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 
 			public function init() {
-				/**
-				* Establish known supported cost/margin plugins
-				*/
-				$this->add_cost_plugin_support('WC_COG', 'Cost of Goods', '_wc_cog_cost', '_wc_cog_cost_variable', 'variable_cost_of_good');
+				$this->supported_product_types = apply_filters( 'wc_pricewaiter_supported_product_types', $this->supported_product_types );
+				$this->supported_cost_plugins = apply_filters( 'wc_pricewaiter_supported_cost_plugins', $this->supported_cost_plugins );
+				
 				if ( class_exists( 'WC_Integration' ) ) {
 					require_once( 'includes/class-wc-pricewaiter-product.php' );
 					require_once( 'includes/class-wc-pricewaiter-embed.php' );
@@ -62,23 +79,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			public function add_pw_integration() {
 				$integrations[] = 'WC_PriceWaiter_Integration';
 				return $integrations;
-			}
-
-			/**
-			* Builds array value to check for various cost/margin plugins with class_exists().
-			* This method can hopefully be used by other plugins to announce themselves to
-			* pricewaiter and inject support for themselves.
-			* @param string|Plugin Class Name
-			* @param string|Meta key for simple product cost/margin
-			* @param string|Meta key for variable product cost/margin
-			*/
-			public function add_cost_plugin_support( $plugin_class, $plugin_name, $simple_meta_key, $variable_meta_key, $variation_field_name) {
-				$this->supported_cost_plugins[$plugin_class] = array(
-					'name'	=> $plugin_name,
-					'simple'		=> $simple_meta_key,
-					'variable'		=> $variable_meta_key,
-					'variation'		=> $variation_field_name
-				);
 			}
 		}
 

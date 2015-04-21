@@ -31,18 +31,10 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 		* Whether or not to output any PW code
 		*/
 		public function pw_can_embed() {
-			global $product;
-
-			$supported_product_types = array(
-				'variable',
-				'simple'
-			);
-
-			// Allow devs to add more supported product types
-			$supported_product_types = apply_filters( 'pw_supported_product_types', $supported_product_types, $product );
+			global $product, $wc_pricewaiter;
 
 			// Only allow on single pages for now.
-			if (is_single() && in_array( $product->product_type, $supported_product_types ) ) {
+			if (is_single() && in_array( $product->product_type, $wc_pricewaiter->supported_product_types ) ) {
 				return true;
 			}
 
