@@ -384,6 +384,9 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	public function add_cost_field_to_product_variation( $loop, $variation_data, $variation ) {
 		$default_cost = get_post_meta( $variation->post_parent, '_wc_cog_cost_variable', true );
 		$cost = ( isset( $variation_data['_wc_cog_cost'][0] ) ) ? $variation_data['_wc_cog_cost'][0] : '';
+		if ( isset( $variation_data['_wc_cog_default_cost'][0] ) && $variation_data['_wc_cog_default_cost'][0] == 'yes' ) {
+			$cost = '';
+		}
 		?>
 			<tr>
 				<td>
@@ -418,11 +421,14 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 			if ( $cost !== '' ) {
 				update_post_meta( $variation_id, '_wc_cog_cost', $cost );
+				update_post_meta( $variation_id, '_wc_cog_default_cost', 'no' );
 			} else {
 				if( $default_cost ) {
 					update_post_meta( $variation_id, '_wc_cog_cost', $default_cost );
+					update_post_meta( $variation_id, '_wc_cog_default_cost', 'yes' );
 				}else{
 					update_post_meta( $variation_id, '_wc_cog_cost', '' );
+					update_post_meta( $variation_id, '_wc_cog_default_cost', 'no' );
 				}
 			}
 		}
