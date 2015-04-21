@@ -183,9 +183,9 @@ class WC_PriceWaiter_API_Ipn {
                     'order_item_type' => 'shipping'
                 ));
 
-                wc_add_order_item_meta( $shipping_item_id, 'taxes', serialize( array() ) );
-                wc_add_order_item_meta( $shipping_item_id, 'cost', $posted['shipping'] );
-                wc_add_order_item_meta( $shipping_item_id, 'method_id', 'pricewaiter_fixed_shipping' );
+                wc_update_order_item_meta( $shipping_item_id, 'taxes', serialize( array() ) );
+                wc_update_order_item_meta( $shipping_item_id, 'cost', $posted['shipping'] );
+                wc_update_order_item_meta( $shipping_item_id, 'method_id', 'pricewaiter_fixed_shipping' );
             }
 
 
@@ -196,11 +196,11 @@ class WC_PriceWaiter_API_Ipn {
                     'order_item_type' => 'tax'
                 ));
 
-                wc_add_order_item_meta( $tax_item_id, 'shipping_tax_amount', 0 );
-                wc_add_order_item_meta( $tax_item_id, 'tax_amount', $posted['tax'] );
-                wc_add_order_item_meta( $tax_item_id, 'compound', 0 );
-                wc_add_order_item_meta( $tax_item_id, 'label', 'Tax' );
-                wc_add_order_item_meta( $tax_item_id, 'rate_id', 0 );
+                wc_update_order_item_meta( $tax_item_id, 'shipping_tax_amount', 0 );
+                wc_update_order_item_meta( $tax_item_id, 'tax_amount', $posted['tax'] );
+                wc_update_order_item_meta( $tax_item_id, 'compound', 0 );
+                wc_update_order_item_meta( $tax_item_id, 'label', 'Tax' );
+                wc_update_order_item_meta( $tax_item_id, 'rate_id', 0 );
             }
 
 
