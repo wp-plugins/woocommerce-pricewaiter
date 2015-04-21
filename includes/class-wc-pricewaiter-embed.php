@@ -76,8 +76,8 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				
 					PriceWaiterOptions.product 		= <?php echo json_encode( $product_data ); ?>;
 					PriceWaiterOptions.currency 	= '<?php echo get_woocommerce_currency(); ?>';
-					PriceWaiterOptions.enableButton = <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
-					PriceWaiterOptions.enableConversionTools = <?php echo WC_PriceWaiter_Product::is_using_conversion_tools($product); ?>;
+					PriceWaiterOptions.addToPage	= <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
+					PriceWaiterOptions.exit			= <?php echo WC_PriceWaiter_Product::is_using_conversion_tools($product); ?>;
 					PriceWaiterOptions.user = {
 						email: 	'<?php echo $current_user->user_email; ?>',
 						name: 	'<?php echo esc_attr($current_user->user_firstname) . " " . esc_attr($current_user->user_lastname); ?>'
