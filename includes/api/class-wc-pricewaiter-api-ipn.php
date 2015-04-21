@@ -41,8 +41,8 @@ class WC_PriceWaiter_API_Ipn {
      **/
     public function check_ipn_request_is_valid( $ipn_response ) {
 
-        // WARNING!!! REMOVE ME - Testing only
-        $this->endpoint = 'http://woo.pricewaiter.dev/ipntest.php';
+        // Allow custom endpoint for dev
+        $this->endpoint = apply_filters( 'pricewaiter_ipn_endpoint', $this->endpoint );
 
         // Get received values from post data
         $validate_ipn = stripslashes_deep( $ipn_response );
@@ -142,7 +142,7 @@ class WC_PriceWaiter_API_Ipn {
             // Create the order record
             $order_args = array(
                 'status'        => 'processing', // '' (is default)
-                'customer_id'   => ($customer === false) ? null : $customer->ID
+                'customer_id'   => ( $customer === false ) ? null : $customer->ID
             );
 
             $order = wc_create_order($order_args);
@@ -164,18 +164,45 @@ class WC_PriceWaiter_API_Ipn {
                 'totals' => array(
                     'subtotal' => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
                     'total' => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
-                    'subtotal_tax' => $posted['tax'],
-                    'tax' => $posted['tax'],
-                    'tax_data' => array(
-                        'total' => $posted['tax'],
-                        'subtotal' => $posted['tax']
-                    )
+                    'subtotal_tax' => 0,
+                    'tax' => 0
                 ),
                 'variation' => $variant_attributes
             );
 
-            $order->add_product( $product, $posted['quantity'], $product_args ); // $product, $qty = 1, $args = array()
-            
+            // Remove all connected actions for adding a product ?
+            remove_all_actions( 'woocommerce_order_add_product', 1 );
+
+            $order_item_id = $order->add_product( $product, $posted['quantity'], $product_args ); // $product, $qty = 1, $args = array()
+
+
+            // FORCE FEED the shipping costs
+            if ($posted['shipping'] > 0) {
+                $shipping_item_id = wc_add_order_item( $order->id, array(
+                    'order_item_name' => ( !empty( $posted['shipping_method'] ) ) ? $posted['shipping_method'] : 'Flat Rate',
+                    'order_item_type' => 'shipping'
+                ));
+
+                wc_add_order_item_meta( $shipping_item_id, 'taxes', serialize( array() ) );
+                wc_add_order_item_meta( $shipping_item_id, 'cost', $posted['shipping'] );
+                wc_add_order_item_meta( $shipping_item_id, 'method_id', 'pricewaiter_fixed_shipping' );
+            }
+
+
+            // FORCE FEED the sales tax items
+            if ($posted['tax'] > 0) {
+                $tax_item_id = wc_add_order_item( $order->id, array(
+                    'order_item_name' => 'PRICEWAITER-ORDER-CUSTOM-TAX',
+                    'order_item_type' => 'tax'
+                ));
+
+                wc_add_order_item_meta( $tax_item_id, 'shipping_tax_amount', 0 );
+                wc_add_order_item_meta( $tax_item_id, 'tax_amount', $posted['tax'] );
+                wc_add_order_item_meta( $tax_item_id, 'compound', 0 );
+                wc_add_order_item_meta( $tax_item_id, 'label', 'Tax' );
+                wc_add_order_item_meta( $tax_item_id, 'rate_id', 0 );
+            }
+
 
             // Handle customer data
             $order->set_address( $address_billing, 'billing' );
@@ -186,7 +213,7 @@ class WC_PriceWaiter_API_Ipn {
             // - 'tax' seems to be buggy.
             // - Available types - 'shipping', 'order_discount', 'tax', 'shipping_tax', 'total', 'cart_discount'
 
-            // $order->set_total( $posted['tax'], 'tax' );
+            # $order->set_total( $posted['tax'], 'tax' ); // Not sure this is necessary
             $order->set_total( 0, 'shipping_tax' );
             $order->set_total( $posted['shipping'], 'shipping' );
 
@@ -209,6 +236,9 @@ class WC_PriceWaiter_API_Ipn {
             update_post_meta( $order->id, '_pw_pricewaiter_id', $posted['pricewaiter_id'] );
             update_post_meta( $order->id, '_pw_transaction_id', $posted['transaction_id'] );
             update_post_meta( $order->id, '_pw_payment_method', $posted['payment_method'] );
+
+            update_post_meta( $order->id, '_payment_method', 'PriceWaiter (' . $posted['payment_method'] . ')' );
+            update_post_meta( $order->id, '_payment_method_title', 'PriceWaiter' );
 
         }
 
