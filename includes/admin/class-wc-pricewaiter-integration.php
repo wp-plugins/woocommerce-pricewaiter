@@ -67,6 +67,13 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
 			);
+			$this->form_fields['button_wrapper_style'] = array(
+				'title'				=> __( 'Button Wrapper Style', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'				=> 'textarea',
+				'label'				=> __( 'Additional Button Wrapper Styles', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Styles are applied as an inline style attribute to the button wrapper.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'default'			=> "padding-top: 10px;\nclear: both;"
+			);
 			$this->form_fields['debug'] = array(
 				'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'checkbox',

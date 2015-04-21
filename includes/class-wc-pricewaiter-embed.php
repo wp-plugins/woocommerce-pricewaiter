@@ -10,6 +10,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			global $prouct, $woocommerce, $current_user;
 
 			$this->api_key = wc_pricewaiter()->get_pricewaiter_setting( 'api_key' );
+			$this->button_wrapper_style = preg_replace( '/\s+/' , ' ', wc_pricewaiter()->get_pricewaiter_setting( 'button_wrapper_style' ) );
 
 			if ($this->can_embed()) {
 
@@ -62,7 +63,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			do_action( 'wc_pricewaiter_before_button' );
 			?>
-			<div id="pricewaiter_button_wrap" class="pricewaiter_button_wrap">
+			<div id="pricewaiter_button_wrap" class="pricewaiter_button_wrap" style="<?php echo $this->button_wrapper_style; ?>">
 				<span id="pricewaiter"></span>
 			</div>
 			<script>
