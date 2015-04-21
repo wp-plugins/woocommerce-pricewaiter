@@ -26,34 +26,16 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_settings_api_sanitized_fields_'. $this->id, array( $this, 'sanitize_settings' ) );
 		
-		if( !$this->setup_complete ) {
-			add_action( 'admin_notices', array( $this, 'alert_admin_to_configure' ) );
-		}
-	}
-
-	/**
-	*
-	*	TODO:	Create better messaging method.
-	*			Look into woocommerce add_notice() errors.
-	*			Consider how COG performs message queues.
-	*
-	*/
-	public function alert_admin_to_configure() {
-
-		// Don't nag if we're on the integrations tab
-		if (isset($_GET['tab']) && 'integration' === $_GET['tab']) {
-			return;
-		}
-		?>
-		<div class="update-nag">
-			<p>
-				<?php _e( 'Don&rsquo;t lose potential customers to the competition. Complete your PriceWaiter configuration now.', WC_PriceWaiter::TEXT_DOMAIN ); ?>
+		if( !$this->setup_complete && !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) ) {
+			$notice = "<p>
+				" . __( 'Don&rsquo;t lose potential customers to the competition. Complete your PriceWaiter configuration now.', WC_PriceWaiter::TEXT_DOMAIN ) . "
 			</p>
-			<a href="<?php echo add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ); ?>" class="button-primary">
-				<?php _e( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ); ?>
-			</a>
-		</div>
-		<?php
+			<a href=\"" . add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ) . "\" class=\"button-primary\">
+				" . __( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ) . "
+			</a>";
+
+			wc_pricewaiter()->notice_handler->add_notice( $notice, 'update-nag', 'configure-pricewaiter' );
+		}
 	}
 
 	/**

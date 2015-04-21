@@ -47,6 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			);
 			public $pricewaiter_settings;
 			protected static $_instance = null;
+			public $notice_handler;
 
 			public static function instance() {
 				if( is_null( self::$_instance  ) ) {
@@ -93,6 +94,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 					add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
 					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
 				} else if ( is_admin() ) {
+					$this->notice_handler = new WC_PriceWaiter_Notice_Handler();
 					$this->product_settings = new WC_PriceWaiter_Product_Settings();
 					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
 				}
@@ -114,6 +116,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			}
 
 			private function admin_includes() {
+				require_once( 'includes/admin/class-wc-pricewaiter-notice-handler.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-integration-helpers.php' );
