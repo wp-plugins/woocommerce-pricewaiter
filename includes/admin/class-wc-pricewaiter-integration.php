@@ -112,7 +112,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			<a href="https://pricewaiter.com" class="button-primary">
 				<?php _e( 'Sign Up ', WC_PriceWaiter::TEXT_DOMAIN ); ?>
 			</a>
-			<a href="<?php echo add_query_arg( 'tab', 'integration', admin_url( 'admin.php?page=wc-settings' ) ); ?>" class="button-secondary">
+			<a href="<?php echo add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ); ?>" class="button-secondary">
 				<?php _e( 'Add your API Key', WC_PriceWaiter::TEXT_DOMAIN ); ?>
 			</a>
 		</div>
