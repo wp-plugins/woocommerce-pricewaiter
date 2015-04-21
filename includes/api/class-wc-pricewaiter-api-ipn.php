@@ -138,7 +138,9 @@ class WC_PriceWaiter_API_Ipn {
                 'variation' => $variant_attributes
             );
 
-            // Remove all connected actions for adding a product ?
+
+            // Remove all connected actions for adding a product
+            // Prevent further down the line from adjusting pricing
             remove_all_actions( 'woocommerce_order_add_product', 1 );
 
             $order_item_id = $order->add_product( $product, $posted['quantity'], $product_args ); // $product, $qty = 1, $args = array()
