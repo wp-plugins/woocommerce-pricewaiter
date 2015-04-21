@@ -7,7 +7,7 @@
         <div class="wc_pricewaiter_setup_step_num"><h3><span>1)</span> Enable WooCommerce REST API</h3></div>
         <div class="wc_pricewaiter_setup_step_content">
             <p>In order for PriceWaiter to automate things for you, we need access to the WooCommerce REST API.<br><em>Please setup one of the options below.</em></p>
-            
+
             <div class="js_error_holder"></div>
 
             <div class="wc_pricewaiter_setup_block_unique">
@@ -24,7 +24,7 @@
                     <button class="button-primary" name="save_wc_pricewaiter_setup_api_user_new" id="save_wc_pricewaiter_setup_api_user_new">Create API User</button>
                 </p>
             </div>
-            
+
             <div class="wc_pricewaiter_setup_block_current">
                 <h4>Grant API access to existing user:</h4>
                 <select name="wc_pricewaiter_api_user_existing" id="wc_pricewaiter_api_user_existing">
@@ -40,8 +40,8 @@
         </div>
     </div>
     <?php endif; ?>
-    
-    <?php if ( !self::has_configured( 'pw_api_key' ) ) : ?>
+
+    <?php if ( !self::has_configured( 'pw_api_key' ) && self::has_configured( 'wc_api_user' ) ) : ?>
     <div id="wc_pricewaiter_setup_step_2" class="wc_pricewaiter_setup_step">
         <div class="wc_pricewaiter_setup_step_num"><h3><span>2)</span> Create Your PriceWaiter Account</h3></div>
         <div class="wc_pricewaiter_setup_step_content">

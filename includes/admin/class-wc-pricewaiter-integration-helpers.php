@@ -83,28 +83,18 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
         private static function _request_sign_up_token() {
             $sign_up_api_endpoint = apply_filters( 'wc_pricewaiter_api_sign_up_url', 'https://api.pricewaiter.com/store-signups' );
 
-            $ch = curl_init();
+            $response = wp_remote_post($sign_up_api_endpoint, array(
+                'body'         => self::_get_store_data(),
+                'content-type' => 'Content-type: application/x-www-form-urlencoded'
+            ) );
 
-            curl_setopt( $ch, CURLOPT_URL, $sign_up_api_endpoint );
-            curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 30 );
-            curl_setopt( $ch, CURLOPT_TIMEOUT, 30 );
-            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-            curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-type: application/x-www-form-urlencoded' ) );
-            curl_setopt( $ch, CURLOPT_POST, true );
-            curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( self::_get_store_data() ) );
-
-            $response = curl_exec( $ch );
-
-            curl_close( $ch );
-
-            $response = json_decode( $response );
-
-            if ( !isset( $response->body->token ) ) {
+            $response_body = json_decode( $response['body'] );
+            if ( !isset( $response_body->body->token ) ) {
                 // no token returned
                 return false;
             }
 
-            $token = $response->body->token;
+            $token = $response_body->body->token;
 
             update_option( '_wc_pricewaiter_sign_up_token', $token );
 
@@ -137,7 +127,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
             foreach ( $full_shipping_countries as $isocode => $countryname ) {
                 $shipping_countries[] = $isocode;
             }
-            $shipping_country_string = join( ', ', $shipping_countries );
+            $shipping_country_string = join( ',', $shipping_countries );
 
             $store_args = array(
                 'platform'         => 'woo',
@@ -145,13 +135,12 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
                 'woo_api_secret'   => $api_user->woocommerce_api_consumer_secret,
                 'woo_api_endpoint' => get_woocommerce_api_url( '' ),
 
-                'user_email'     => $user->user_email,
-                'user_name'      => $user_fullname,
-                'user_firstname' => $user->user_firstname,
-                'user_lastname'  => $user->user_lastname,
+                'admin_email'     => $user->user_email,
+                'admin_firstname' => $user->user_firstname,
+                'admin_lastname'  => $user->user_lastname,
 
-                'store_name'               => '',
-                'store_url'                => '',
+                'store_name'               => get_bloginfo( 'name' ),
+                'store_url'                => get_home_url(null, '/'),
                 'store_country'            => $locale->get_base_country(),
                 'store_state'              => $locale->get_base_state(),
                 'store_city'               => $locale->get_base_city(),
@@ -159,7 +148,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
                 'store_shipping_countries' => $shipping_country_string,
                 'store_currency'           => get_woocommerce_currency(),
                 'store_paypal_email'       => $paypal->receiver_email,
-                'store_order_callback_url' => '',
+                'store_order_callback_url' => get_home_url( null, '/pricewaiter-api/ipn' ),
                 'store_twitter_handle'     => ''
             );
 
@@ -200,9 +189,9 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 
             // Check that user doesn't exist already
             if ( $user = self::get_wp_user( $login ) ) {
-                return $user->ID; 
+                return $user->ID;
             }
-            
+
             // Create user
             $pw_user_data = array(
                 'user_login'    => $login,
@@ -249,10 +238,10 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
          * @return bool
          */
         private function grant_wc_api_access_to_user( $user_id ) {
-            
+
             // Use WC Logic for generating API keys & permissions
             // WC_Admin_Profile::generate_api_key( $user_id );
-            
+
             // Assign API key, secret and permissions for the given user.
             if ( !get_user_meta( $user_id, 'woocommerce_api_consumer_key', true ) ) {
                 $consumer_key = 'ck_' . hash( 'md5', $user_id . date( 'U' ) . mt_rand() );
