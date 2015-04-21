@@ -13,7 +13,7 @@ class WC_PriceWaiter_Product {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
 		return array(
-			'sku' 				=> $product->get_sku() ? $product->get_sku() : $product->id,
+			'sku' 				=> $product->id,
 			'name' 				=> $product->get_title(),
 			'description'		=> $product->post->post_excerpt,
 			'regular_price'		=> $product->get_regular_price(),
