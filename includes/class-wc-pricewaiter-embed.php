@@ -9,14 +9,45 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			global $prouct, $woocommerce, $current_user;
 
 			$this->api_key = $api_key;
-			$this->pw_embed_code();
 
-			/**
-			* Hook widget script include into the footer for best site performance
-			* - wp_enqueue_script doesn't allow async attribute
-			* - allow developers to customize this priority
-			*/
-			add_action( 'wp_footer', array( $this, 'pw_widget_scripts' ), apply_filters( 'pw_widget_script_priority', 10) );
+			if ($this->pw_can_embed()) {
+
+				// PriceWaiterOptions and button
+				$this->pw_embed_code();
+
+				/**
+				* Hook widget script include into the footer for best site performance
+				* - wp_enqueue_script doesn't allow async attribute
+				* - allow developers to customize this priority
+				*/
+				add_action( 'wp_footer', array( $this, 'pw_widget_scripts' ), apply_filters( 'pw_widget_script_priority', 10) );
+
+			}
+
+			
+		}
+
+		/**
+		* Whether or not to output any PW code
+		*/
+		public function pw_can_embed() {
+			global $product;
+
+			$supported_product_types = array(
+				'variable',
+				'simple'
+			);
+
+			// Allow devs to add more supported product types
+			$supported_product_types = apply_filters( 'pw_supported_product_types', $supported_product_types, $product );
+
+			// Only allow on single pages for now.
+			if (is_single() && in_array( $product->product_type, $supported_product_types ) ) {
+				return true;
+			}
+
+			return false;
+
 		}
 		
 		public function pw_embed_code() {
