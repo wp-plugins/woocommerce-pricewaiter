@@ -96,7 +96,10 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		<?php WC_PriceWaiter_Integration_Helpers::load_setup_screen(); ?>
 		<table class="form-table <?php if (!WC_PriceWaiter_Integration_Helpers::has_configured('wc_api_user')) : ?>wc_pricewaiter_setup_defaults<?php endif; ?>">
 		<?php $this->generate_settings_html(); ?>
-		</table> <?php
+		</table>
+		<!-- Section -->
+		<div><input type="hidden" name="section" value="<?php echo $this->id; ?>" /></div>
+		<?php
 	}
 
 	/*
