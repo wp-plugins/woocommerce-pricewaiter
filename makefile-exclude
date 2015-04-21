@@ -5,4 +5,5 @@
 makefile
 makefile-exclude
 README.md
+CHANGELOG.md
 woocommerce-pricewaiter
