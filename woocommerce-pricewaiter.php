@@ -112,6 +112,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			private function admin_includes() {
 				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-integration-helpers.php' );
 			}
 
 			public function add_pricewaiter_integration( $integrations ) {
