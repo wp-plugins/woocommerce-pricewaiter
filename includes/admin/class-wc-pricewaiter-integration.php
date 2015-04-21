@@ -332,7 +332,17 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'description'		=> __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN ),
 
 			)
-		);	
+		);
+		woocommerce_wp_checkbox(
+			array(
+				'id'				=> '_wc_pricewaiter_conversion_tools',
+				'class'				=> 'checkbox',
+				'wrapper_class'		=> 'show_if_variable show_if_simple',
+				'label'				=> __( 'Enable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Turns on your conversion tool set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
+
+			)
+		);
 	}
 	/**
 	 *	Save Disable PriceWaiter value for product
@@ -341,6 +351,10 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		// Update checkbox for disabling PriceWaiter button
 		$checkbox_disabled = isset( $_POST['_wc_pricewaiter_disabled'] ) ? 'yes' : 'no';
 		update_post_meta( $post_id, '_wc_pricewaiter_disabled', $checkbox_disabled );
+		
+		// Update checkbox for enabled Conversion Tools
+		$checkbox_conversion = isset( $_POST['_wc_pricewaiter_conversion_tools'] ) ? 'yes' : 'no';
+		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools', $checkbox_conversion );
 	}
 
 
