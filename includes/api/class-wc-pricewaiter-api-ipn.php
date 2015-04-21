@@ -135,9 +135,12 @@ class WC_PriceWaiter_API_Ipn {
 			// Check if the customer has an account
 			$customer = get_user_by( 'email', $posted['buyer_email'] );
 
+            // Filters to customize order totals
+            //$this->setup_order_filters();
+
 			// Create the order record
 			$order_args = array(
-				'status'        => ( $this->test_order ) ? 'cancelled' : 'processing', // '' (is default)
+				'status'        => ( $this->test_order ) ? 'cancelled' : 'processing',
 				'customer_id'   => ( $customer === false ) ? null : $customer->ID
 			);
 
@@ -169,8 +172,12 @@ class WC_PriceWaiter_API_Ipn {
 				'totals' => array(
 					'subtotal'     => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
 					'total'        => $product->get_price_excluding_tax( $quantity, $posted['unit_price'] ),
-					'subtotal_tax' => 0,
-					'tax'          => 0
+					'subtotal_tax' => $posted['tax'],
+					'tax'          => $posted['tax'],
+                    'tax_data'     => array(
+                                        'total'     => array( $posted['tax'] ),
+                                        'subtotal'  => array( $posted['tax'] )
+                                    )
 				),
 				'variation' => $variant_attributes
 			);
@@ -179,7 +186,7 @@ class WC_PriceWaiter_API_Ipn {
 			// Prevent further down the line from adjusting pricing
 			remove_all_actions( 'woocommerce_order_add_product', 1 );
 
-			$order_item_id = $order->add_product( $product, $posted['quantity'], $product_args ); // $product, $qty = 1, $args = array()
+			$order_item_id = $order->add_product( $product, $posted['quantity'], $product_args );
 
 			// FORCE FEED the shipping costs
 			if ($posted['shipping'] > 0) {
@@ -194,6 +201,7 @@ class WC_PriceWaiter_API_Ipn {
 			}
 
 			// FORCE FEED the sales tax items
+            // USE ADD TAX from abstact - function add_tax() ?
 			if ($posted['tax'] > 0) {
 				$tax_item_id = wc_add_order_item( $order->id, array(
 					'order_item_name' => 'PRICEWAITER-ORDER-CUSTOM-TAX',
@@ -203,7 +211,7 @@ class WC_PriceWaiter_API_Ipn {
 				wc_update_order_item_meta( $tax_item_id, 'shipping_tax_amount', 0 );
 				wc_update_order_item_meta( $tax_item_id, 'tax_amount', $posted['tax'] );
 				wc_update_order_item_meta( $tax_item_id, 'compound', 0 );
-				wc_update_order_item_meta( $tax_item_id, 'label', 'Tax' );
+				wc_update_order_item_meta( $tax_item_id, 'label', 'Tax (' . $posted['buyer_shipping_state'] . ')' );
 				wc_update_order_item_meta( $tax_item_id, 'rate_id', 0 );
 			}
 
@@ -241,7 +249,8 @@ class WC_PriceWaiter_API_Ipn {
 			$order->set_address( $address_shipping, 'shipping' );
 
 			// Handle totals rows
-			$order->set_total( 0, 'shipping_tax' );
+			$order->set_total( $posted['tax'], 'tax' );
+            $order->set_total( 0, 'shipping_tax' );
 			$order->set_total( $posted['shipping'], 'shipping' );
 			$order->set_total( 0, 'cart_discount' );
 			$order->set_total( 0, 'order_discount' );
@@ -270,6 +279,9 @@ class WC_PriceWaiter_API_Ipn {
 					$this->log->add( 'pricewaiter-ipn', 'Order Flagged as "TEST" and set to status of "cancelled". Order # ' . $order->id );
 				}
 			}
+
+            // Delete transients
+            wc_delete_shop_order_transients( $order->id );
 		}
 
 		exit;
