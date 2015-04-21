@@ -14,7 +14,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		$this->method_descrption	= __( 'Name your price through PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
 		// $this->cost_plugin			= array();
 		$this->messages				= array();
-		
+
 		$this->init_form_fields();
 		$this->init_settings();
 
@@ -25,7 +25,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		// integration settings hooks
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_settings_api_sanitized_fields_'. $this->id, array( $this, 'sanitize_settings' ) );
-		
+
 		// prevent from showing on integrations page or when api user notice is needed
 		if( !$this->setup_complete && !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) && ( !get_option( '_wc_pricewaiter_api_user_status' ) || 'ACTIVE' == get_option( '_wc_pricewaiter_api_user_status' ) ) ) {
 			$notice = "<p>
@@ -54,14 +54,14 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		);
 
 		$api_key = isset( $_POST[$this->plugin_id . $this->id . '_api_key'] ) ? $_POST[$this->plugin_id . $this->id . '_api_key'] : $this->get_option( 'api_key' );
-		
+
 		// conditionally show fields that depend on API key existing.
 		if( $api_key ) {
 			$this->form_fields['customize_button'] = array(
 				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'button_link',
 				'custom_attributes' => array(
-					'href'		=> "https://manage.pricewaiter.com/stores/{$api_key}/button",
+					'href'		=> apply_filters( 'wc_pricewaiter_account_base_url', "https://manage.pricewaiter.com" ) . "/stores/{$api_key}/button",
 					'target' 	=> "_blank"
 				),
 				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
@@ -164,7 +164,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 		return $settings;
 	}
-	
+
 	/*
 	*	Validate api key is set
 	*/

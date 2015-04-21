@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Version: 0.0.1
  * Requires at least: 3.8
  *
+ ! STAGING VERSION
  */
 
 // Minimum supported version of WooCommerce
@@ -27,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			/**
 			* Main array key is the plugins primary class.
 			* The class is checked to see if plugin is active.
-			* 
+			*
 			* Sub array is used to store meta key locations
 			* 'product type' => 'post_meta key for stored cost'
 			*/
@@ -40,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			);
 			public $cost_plugin_fields = array();
 			public $cost_plugin_installed = false;
-			public $supported_product_types = array( 
+			public $supported_product_types = array(
 				'simple',
 				'variable',
 				'variation'
@@ -87,7 +88,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 				// Init API
 				$this->api = new WC_PriceWaiter_API();
-								
+
 				if ( !is_admin() && $this->get_pricewaiter_setting( 'setup_complete' ) ) {
 					/**
 					* Filter API product response to inject pricewaiter data
@@ -235,3 +236,31 @@ function wc_pricewaiter_deactivated() {
 add_action( 'init', 'wc_pricewaiter_after_activation', 20 );
 register_activation_hook( __FILE__, 'wc_pricewaiter_activated' );
 register_deactivation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
+
+/**
+ ! STAGING VERSION
+ */
+function pw_staging_pricewaiter_ipn_endpoint( $url ) {
+    return 'https://api-staging.pricewaiter.com/order/verify';
+}
+add_filter('wc_pricewaiter_ipn_endpoint', 'pw_staging_ipn_endpoint');
+
+function pw_staging_api_sign_up_url( $url ) {
+	return 'https://api-staging.pricewaiter.com/store-signups';
+}
+add_filter( 'wc_pricewaiter_api_sign_up_url', 'pw_staging_api_sign_up_url' );
+
+function pw_staging_default_sign_up_base_url( $url ) {
+	return 'https://staging.pricewaiter.com/sign-up';
+}
+add_filter( 'wc_pricewaiter_default_sign_up_base_url', 'pw_staging_default_sign_up_base_url' );
+
+function pw_staging_account_base_url( $url ) {
+	return 'https://staging.pricewaiter.com';
+}
+add_filter( 'wc_pricewaiter_account_base_url', 'pw_staging_account_base_url' );
+
+function pw_staging_widget_script_url() {
+	return 'https://widget-staging.pricewaiter.com/script/';
+}
+add_filter( 'wc_pricewaiter_widget_script_url', 'pw_staging_widget_script_url' );
