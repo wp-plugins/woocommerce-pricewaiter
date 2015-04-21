@@ -7,7 +7,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration' ) ):
 */
 class WC_PriceWaiter_Integration extends WC_Integration {
 	public function __construct() {
-		global $woocommerce, $wc_pricewaiter;
+		global $woocommerce;
 
 		$this->id					= 'pricewaiter';
 		$this->method_title			= __( 'PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN );
@@ -19,36 +19,16 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		$this->init_settings();
 
 		$this->api_key				= $this->get_option( 'api_key' );
+		$this->setup_complete 		= $this->get_option( 'setup_complete' );
 		$this->debug				= $this->get_option( 'debug' );
 
 		// integration settings hooks
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_settings_api_sanitized_fields)'. $this->id, array( $this, 'sanitize_settings' ) );
+		add_action( 'woocommerce_settings_api_sanitized_fields_'. $this->id, array( $this, 'sanitize_settings' ) );
 		
-		if( $this->is_configured() ) {
-			// If required fields are set to add button
-			add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_pricewaiter_embed' ) );
-		} else {
-			// Alert admin to complete setup
+		if( !$this->setup_complete ) {
 			add_action( 'admin_notices', array( $this, 'alert_admin_to_configure' ) );
 		}
-	}
-
-	public function is_configured() {
-		$is_config_completed = false;
-
-		$required_configs = array(
-			// has or is setting api_key
-			( isset( $this->api_key ) && !empty( $this->api_key ) ) || ( isset( $_POST['woocommerce_pricewaiter_api_key'] ) && !empty( $_POST['woocommerce_pricewaiter_api_key'] ) ),
-			// other config values to check for
-		);
-
-		// if any required fields are false, configuration is incomplete.
-		if ( !in_array( false, $required_configs ) ) {
-			$is_config_completed = true;
-		}
-
-		return $is_config_completed;
 	}
 
 	/**
@@ -139,9 +119,24 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 	/*
 	*	Sanitize Settings
-	*	Currently nothing to sanitize
+	*	And validate complete setup
 	*/
 	public function sanitize_settings( $settings ) {
+		$completed = true;
+		if( isset( $settings ) ) {
+			// check if required setup is completed
+			foreach ($settings as $setting => $value) {
+				switch ( $setting ) {
+					case 'api_key':
+						if( empty( $value ) ){
+							$completed = false;
+						}
+						break;
+				}
+			}
+		}
+		$settings['setup_complete'] = $completed;
+
 		return $settings;
 	}
 	
@@ -170,13 +165,6 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 			</div>
 			<?php
 		}
-	}
-
-	/**
-	*	Add PriceWaiter Widget to page
-	*/
-	public function add_pricewaiter_embed() {
-		new WC_PriceWaiter_Embed($this->api_key);
 	}
 }
 

@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 	class WC_PriceWaiter_Embed {
-		public function __construct($api_key){
+		public function __construct(){
 			global $prouct, $woocommerce, $current_user;
 
-			$this->api_key = $api_key;
+			$this->api_key = wc_pricewaiter()->get_pricewaiter_setting( 'api_key' );
 
 			if ($this->can_embed()) {
 
@@ -29,10 +29,10 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 		* Whether or not to output any PW code
 		*/
 		public function can_embed() {
-			global $product, $wc_pricewaiter;
+			global $product;
 
 			// Only allow on single pages for now.
-			if (is_single() && in_array( $product->product_type, $wc_pricewaiter->supported_product_types ) ) {
+			if (is_single() && in_array( $product->product_type, wc_pricewaiter()->supported_product_types ) ) {
 				return true;
 			}
 
