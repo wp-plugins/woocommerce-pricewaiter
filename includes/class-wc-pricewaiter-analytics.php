@@ -41,11 +41,11 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 			// Set order from post data.
 			$order = $_POST;
 
-			// Hack prefix our order id's for any filters or easy viewing
-			$order['pricewaiter_id'] = 'pricewaiter-' . $order['pricewaiter_id'];
-
 			// Run tracking if we can & should
 			if ( $this->pw_should_track_order( $order ) ) {
+				// Hack prefix our order id's for any filters or easy viewing
+				$order['pricewaiter_id'] = 'pricewaiter-' . $order['pricewaiter_id'];
+
 				echo $this->pw_get_ecommerce_tracking_code( $order );
 			}
 		}
@@ -138,13 +138,6 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 		'" . esc_js( $order['shipping'] ) . "'                  // shipping
 	]);
 ";
-
-				// Add these items back in (above to _addTrans) when PW supports posting them.
-				/*
-				'" . esc_js( $order['buyer_billing_city'] ) . "',       // city
-				'" . esc_js( $order['buyer_billing_state'] ) . "',      // state or province
-				'" . esc_js( $order['buyer_billing_country'] ) . "'     // country
-				*/
 
 				// Order item (singular purchases only)
 				$code .= "
