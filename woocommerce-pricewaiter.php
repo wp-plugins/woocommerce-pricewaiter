@@ -21,7 +21,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	* New PriceWaiter
 	*/
 	if ( !class_exists( 'WC_PriceWaiter' ) ) {
-		class WC_PriceWaiter {
+		final class WC_PriceWaiter {
 			const VERSION = "0.0.1";
 			const PLUGIN_ID = 'pw';
 			const TEXT_DOMAIN = 'woocommerce-pricewaiter';
@@ -175,7 +175,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						<p><?php printf( __( "It appears you're currently using WooCommerce v%s", WC_PriceWaiter::TEXT_DOMAIN ), WC()->version ); ?></p>
 						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $wc_minimum_version); ?></p>
 					</div>
-				<?
+				<?php
 			}
 
 			public function get_pricewaiter_setting( $key ) {
@@ -198,7 +198,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				<p><?php echo 'WooCommerce v' . $wc_minimum_version . ' or higher is required to use the WooCommerce PriceWaiter plugin.'; ?></p>
 				<p><a href="http://www.woothemes.com/woocommerce/">Install WooCommerce to get started.</a></p>
 			</div>
-		<?
+		<?php
 	}
 	add_action( 'admin_notices', 'alert_woocommerce_required' );
 }
