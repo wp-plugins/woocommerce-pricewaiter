@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Description: Name your price with PriceWaiter
  * Author: PriceWaiter
  * Text Domain: woocommerce-pricewaiter
- * Author URI: http://pricewaiter.com/
- * Version: 0.0.1
- * Requires at least: 3.8
+ * Author URI: https://pricewaiter.com/
+ * Version: 1.0
+ * Requires at least: 1.0
  *
  ! STAGING VERSION
  */
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	*/
 	if ( !class_exists( 'WC_PriceWaiter' ) ) {
 		final class WC_PriceWaiter {
-			const VERSION              = "0.0.1";
+			const VERSION              = "1.0";
 			const PLUGIN_ID            = 'pw';
 			const TEXT_DOMAIN          = 'woocommerce-pricewaiter';
 			public $wc_minimum_version = '2.2.0';
