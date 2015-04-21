@@ -103,10 +103,12 @@ class WC_PriceWaiter_API_Ipn {
 
             // Check if this order was already created. Bail if it was
             if ( $this->order_already_exists( $posted['pricewaiter_id'] ) ) {
-                wp_die( "PriceWaiter Order Already Exists - {$posted[pricewaiter_id]}", "PriceWaiter IPN", array( 'response' => 409 ) );
+                wp_die( "PriceWaiter Order Already Exists - {$posted['pricewaiter_id']}", "PriceWaiter IPN", array( 'response' => 409 ) );
             }
 
-
+            // Check if the customer has an account
+            $customer = get_user_by( 'email', $posted['buyer_email'] );
+            
             // Create the order record
             $order_args = array(
                 'status'        => 'processing', // '' (is default)
@@ -174,8 +176,7 @@ class WC_PriceWaiter_API_Ipn {
             }
 
 
-            // Check if the customer has an account
-            $customer = get_user_by( 'email', $posted['buyer_email'] );
+            
 
             // Create the order
             $address_billing = array(
