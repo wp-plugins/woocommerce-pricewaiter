@@ -45,8 +45,11 @@ class WC_PriceWaiter_Product {
 		}
 
 		$pricewaiter_disabled = get_post_meta( $product->id, $pricewaiter_disabled_metakey, true ) == 'yes' ? true : false;
+
+		// Allow override on whether PriceWaiter can be used for the current product
+		$pricewaiter_disabled = apply_filters( 'pw_product_disable_pricewaiter', $pricewaiter_disabled, $product );
 		
-		return $product->is_purchasable() && !$pricewaiter_disabled ? true : false;
+		return $product->is_purchasable() && !$pricewaiter_disabled ? 'true' : 'false';
 	}
 }
 
