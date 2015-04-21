@@ -130,7 +130,7 @@ if ( !class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 			$shipping_country_string = join( ', ', $shipping_countries );
 
 			$store_args = array(
-				'platform'                        => 'woo',
+				'platform'                        => 'woocommerce',
 				'woo_api_key'                     => $api_user->woocommerce_api_consumer_key,
 				'woo_api_secret'                  => $api_user->woocommerce_api_consumer_secret,
 				'woo_api_endpoint'                => get_woocommerce_api_url( '' ),
