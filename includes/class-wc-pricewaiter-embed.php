@@ -9,6 +9,13 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 			global $prouct, $woocommerce, $current_user;
 			$this->api_key = $api_key;
 			$this->pw_embed_code();
+
+			/**
+			* Hook widget script include into the footer for best site performance
+			* - wp_enqueue_script doesn't allow async attribute
+			* - allow developers to customize this priority
+			*/
+			add_action( 'wp_footer', array( $this, 'pw_widget_scripts' ), apply_filters( 'pw_widget_script_priority', 10) );
 		}
 		
 		public function pw_embed_code() {
@@ -72,11 +79,15 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					};
 				})(document, window, jQuery);
 			</script>
-			<script src="https://widget.pricewaiter.com/script/<?php echo $this->api_key; ?>.js" async></script>
 			<?php
 			do_action( 'woocommerce-pricewaiter-after-button' );
 
 		}
+
+		public function pw_widget_scripts() {
+			echo '<script src="https://widget.pricewaiter.com/script/' . $this->api_key . '.js" async></script>';
+		}
+
 
 		public function pw_add_button() {
 
