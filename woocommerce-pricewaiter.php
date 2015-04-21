@@ -23,6 +23,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			public $supported_cost_plugins;
 
 			public function __construct() {
+
+				// Include Required Files
+				$this->includes();
+
+				// Init API
+				$this->api = new WC_PriceWaiter_API();
+
 				add_action( 'plugins_loaded', array( $this, 'init' ) );
 			}
 
@@ -41,7 +48,18 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				}
 			}
 
-			public function add_pw_integration( $integrations ) {
+			/**
+			 * Include required core files used in admin and on the frontend.
+			 */
+			private function includes() {
+
+				// API Class
+				include_once( 'includes/class-wc-pricewaiter-api.php' );
+
+			}
+
+
+			public function add_pw_integration() {
 				$integrations[] = 'WC_PriceWaiter_Integration';
 				return $integrations;
 			}
