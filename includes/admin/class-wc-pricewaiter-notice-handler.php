@@ -9,7 +9,7 @@ class WC_PriceWaiter_Notice_Handler {
 	private $admin_notices = array();
 
 	public function __construct() {
-		add_action( 'admin_notices', array( $this, 'echo_admin_notices' ), 20 );
+		add_action( 'admin_notices', array( $this, 'echo_admin_notices' ) );
 	}
 
 	public function add_notice( $message, $type, $id = '' ) {

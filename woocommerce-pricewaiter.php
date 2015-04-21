@@ -48,6 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			public $pricewaiter_settings;
 			protected static $_instance = null;
 			public $notice_handler;
+			public $api_user_monitor;
 
 			public static function instance() {
 				if( is_null( self::$_instance  ) ) {

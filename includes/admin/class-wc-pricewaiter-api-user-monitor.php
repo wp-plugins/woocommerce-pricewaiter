@@ -31,15 +31,15 @@ class WC_PriceWaiter_API_User_Monitor {
 		 * Create an Admin notice to state what's wrong with the user.
 		 * 
 		 * DELETED         = Ask to go to PW setup and reassign an API user.
-		 * MISSING_KEYS    = Ask to generate API KEYS for user or go to PW setup and assign API user.
-		 * LOW_PERMISSIONS = Reset permissions to read_write or go to PW setup and assign API user.
+		 * MISSING_KEYS    = Go to PW setup and assign API user to regenerate keys.
+		 * LOW_PERMISSIONS = Go to PW setup and assign API user to reset permissions.
 		 */
-		if ( $this->api_user_status !== 'ACTIVE' ) {
+		if ( 'ACTIVE' !== $this->api_user_status ) {
 			$user_id = get_option( '_wc_pricewaiter_api_user_id' );
 			$user_info = get_userdata( $user_id );
 
 			// Hide notices on PriceWaiter settings tab
-			if ( !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) ) {	
+			if ( !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) ) {
 				switch ( $this->api_user_status ) {
 					case 'DELETED':
 						wc_pricewaiter()->notice_handler->add_notice( 
@@ -55,26 +55,22 @@ class WC_PriceWaiter_API_User_Monitor {
 
 					case 'MISSING_KEYS':
 						wc_pricewaiter()->notice_handler->add_notice( 
-							'<h3>PriceWaiter is temporarily disabled.</h3>
-							<p>The user PriceWaiter associates with the WooCommerce REST API <strong>' . $user_info->user_login . '</strong> appears to have had the API Key revoked.</strong></p>
-							<p>Please regenerate ' . $user_info->user_login . '\'s keys, or select a user in the PriceWaiter settings (<em>Reselecting the user <b>' . $user_info->user_login . '</b> will regenerate the keys for you.</em>)</p>
-							<p><a href="' . add_query_arg( array( 'user_id' => $user_id ), admin_url( 'user-edit.php' ) ) . '" class="button-primary">Edit API User</a>
-							<a href="' . add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ) . '" class="button-secondary">
-							' . __( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ) . '
-							</a></p>',
+							"<h3>PriceWaiter is temporarily disabled.</h3>
+							<p>The user (<strong>{$user_info->user_login}</strong>) PriceWaiter associates with the WooCommerce REST API appears to have had the API Key revoked.</strong></p>
+							<p>Configure PriceWaiter to resolve this issue. Reselecting <strong>{$user_info->user_login}</strong> from the existing users option will automatically regenerate keys for that user.</p>
+							<p><a href=\"" . add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ) . "\" class=\"button-primary\">
+							" . __( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ) . "</a></p>",
 							'error',
 							'admin-user-missing-keys' );
 						break;
 
 					case 'LOW_PERMISSIONS':
 						wc_pricewaiter()->notice_handler->add_notice( 
-							'<h3>PriceWaiter is temporarily disabled.</h3>
-							<p>The user PriceWaiter associates with the WooCommerce REST API <strong>' . $user_info->user_login . '</strong>, requires <em>read/write</em> permission.</strong></p>
-							<p>Please update <strong>' . $user_info->user_login . '</strong>\'s API permissions, or select a user in PriceWaiter settings (<em>Reselecting the user <b>' . $user_info->user_login . '</b> will reset the API permissions for you.</em>)</p>
-							<p><a href="' . add_query_arg( array( 'user_id' => $user_id ), admin_url( 'user-edit.php' ) ) . '" class="button-primary">Edit API User</a>
-							<a href="' . add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ) . '" class="button-secondary">
-							' . __( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ) . '
-							</a></p>',
+							"<h3>PriceWaiter is temporarily disabled.</h3>
+							<p>The user (<strong>{$user_info->user_login}</strong>) PriceWaiter associates with the WooCommerce REST API requires <strong>read/write</strong> permissions.</strong></p>
+							<p>Configure PriceWaiter to resolve this issue. Reselecting <strong>{$user_info->user_login}</strong> from the existing users option will automatically reset permissions for that user.</p>
+							<p><a href=\"" . add_query_arg( array( 'tab' => 'integration', 'section' => 'pricewaiter'), admin_url( 'admin.php?page=wc-settings' ) ) . "\" class=\"button-primary\">
+							" . __( 'Configure PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ) . "</a></p>",
 							'error',
 							'admin-user-low-permissions' );
 						break;
@@ -96,7 +92,7 @@ class WC_PriceWaiter_API_User_Monitor {
 		if ( $user_id == get_option( '_wc_pricewaiter_api_user_id' ) ) {
 			update_option( '_wc_pricewaiter_api_user_status', 'DELETED' );
 			delete_option( '_wc_pricewaiter_api_user_id' );
-			$this->invalidate_pricewaiter_setup();
+			WC_PriceWaiter_Integration_Helpers::update_setup_complete_option();
 		}
 	}
 
@@ -108,34 +104,22 @@ class WC_PriceWaiter_API_User_Monitor {
 	public function check_status_of_api_user( $user_id ) {
 		if ( $user_id == get_option( '_wc_pricewaiter_api_user_id' ) ) {
 			$api_user = get_userdata( $user_id );
-			$api_user_invalidated = false;
 			$user_status = $this->get_api_user_status();
 			$api_user_revalidated = false;
 
-
-			if ( "ACTIVE" == $user_status ) {
-				/**
-				 * check if user api keys are missing,
-				 * or invalid permissions
-				 */
-				if ( !$api_user->woocommerce_api_consumer_key || !$api_user->woocommerce_api_consumer_secret ) {
-					update_option( '_wc_pricewaiter_api_user_status', 'MISSING_KEYS' );
-					$api_user_invalidated = true;
-				} else if ( 'read_write' !== $api_user->woocommerce_api_key_permissions ) {
-					update_option( '_wc_pricewaiter_api_user_status', 'LOW_PERMISSIONS' );
-					$api_user_invalidated = true;
-				}
-
-				/* invalidate if anything is wrong */
-				if ( $api_user_invalidated ) {
-					$this->invalidate_pricewaiter_setup();
-				}
+			/**
+			 * check if user api keys are missing,
+			 * or invalid permissions
+			 */
+			if ( !$api_user->woocommerce_api_consumer_key || !$api_user->woocommerce_api_consumer_secret ) {
+				update_option( '_wc_pricewaiter_api_user_status', 'MISSING_KEYS' );
+			} else if ( 'read_write' !== $api_user->woocommerce_api_key_permissions ) {
+				update_option( '_wc_pricewaiter_api_user_status', 'LOW_PERMISSIONS' );
 			}
 
 			if ( "LOW_PERMISSIONS" == $user_status ) {
 				if ( 'read_write' == $api_user->woocommerce_api_key_permissions ) {
 					update_option( '_wc_pricewaiter_api_user_status', 'ACTIVE' );
-					$this->revalidate_pricewaiter_setup();
 				}
 			}
 
@@ -149,33 +133,11 @@ class WC_PriceWaiter_API_User_Monitor {
 				}
 
 				if ( $api_user_revalidated ) {
-					$this->revalidate_pricewaiter_setup();
+					update_option( '_wc_pricewaiter_api_user_status', 'ACTIVE' );
 				}
 			}
 
+			WC_PriceWaiter_Integration_Helpers::update_setup_complete_option();
 		}
 	}
-
-	/**
-	 * Something wrong with API user, let's invalidate that option
-	 * and flag setup as incomplete to prevent issues caused by invalid
-	 * user settings.
-	 */
-	public function invalidate_pricewaiter_setup() {
-		$existing_pw_settings = get_option( 'woocommerce_pricewaiter_settings' );
-		$existing_pw_settings['setup_complete'] = false;
-		update_option( 'woocommerce_pricewaiter_settings', $existing_pw_settings );
-	}
-
-	/**
-	 * For when manual action was taken to resolve
-	 * the user issues by updating the user profile.
-	 */
-	public function revalidate_pricewaiter_setup() {
-		$existing_pw_settings = get_option( 'woocommerce_pricewaiter_settings' );
-		$existing_pw_settings['setup_complete'] = true;
-		update_option( 'woocommerce_pricewaiter_settings', $existing_pw_settings );
-	}
-
-
 }

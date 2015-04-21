@@ -26,7 +26,8 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		add_action( 'woocommerce_update_options_integration_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_settings_api_sanitized_fields_'. $this->id, array( $this, 'sanitize_settings' ) );
 		
-		if( !$this->setup_complete && !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) && !get_option('_wc_pricewaiter_api_user_status') ) {
+		// prevent from showing on integrations page or when api user notice is needed
+		if( !$this->setup_complete && !( isset( $_GET['tab'] ) && 'integration' === $_GET['tab'] ) && ( !get_option( '_wc_pricewaiter_api_user_status' ) || 'ACTIVE' == get_option( '_wc_pricewaiter_api_user_status' ) ) ) {
 			$notice = "<p>
 				" . __( 'Don&rsquo;t lose potential customers to the competition. Complete your PriceWaiter configuration now.', WC_PriceWaiter::TEXT_DOMAIN ) . "
 			</p>
@@ -49,26 +50,32 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'description'		=> __( 'Enter your PriceWaiter store API key.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true,
 				'default'			=> ''
-			),
-			'customize_button' => array(
+			)
+		);
+
+		$api_key = isset( $_POST[$this->plugin_id . $this->id . '_api_key'] ) ? $_POST[$this->plugin_id . $this->id . '_api_key'] : $this->get_option( 'api_key' );
+		
+		// conditionally show fields that depend on API key existing.
+		if( $api_key ) {
+			$this->form_fields['customize_button'] = array(
 				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'button_link',
 				'custom_attributes' => array(
-					'href'		=> "https://manage.pricewaiter.com",
+					'href'		=> "https://manage.pricewaiter.com/stores/{$api_key}/button",
 					'target' 	=> "_blank"
 				),
 				'description'		=> __( 'Customize your button by going to your PriceWaiter account &gt; Widget &gt; Button Settings.', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true
-			),
-			'debug'	=> array(
+			);
+			$this->form_fields['debug'] = array(
 				'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'checkbox',
 				'label'				=> __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
 				'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN ),
 				'desc_tip'			=> true,
 				'default' 			=> false
-			)
-		);
+			);
+		}
 	}
 
 	/**

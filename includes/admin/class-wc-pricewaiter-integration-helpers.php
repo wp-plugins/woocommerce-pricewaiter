@@ -65,7 +65,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
          */
         public static function get_sign_up_token() {
             // get wc_pricewaiter_sign_up_token option
-            $token = get_option( 'wc_pricewaiter_sign_up_token' );
+            $token = get_option( '_wc_pricewaiter_sign_up_token' );
             if ( $token && !empty( $token ) ) {
                 return $token;
             }
@@ -106,7 +106,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 
             $token = $response->body->token;
 
-            update_option( 'wc_pricewaiter_sign_up_token', $token );
+            update_option( '_wc_pricewaiter_sign_up_token', $token );
 
             return $token;
         }
@@ -268,6 +268,9 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 
             // Flag our api user
             update_option( '_wc_pricewaiter_api_user_id', $user_id );
+            update_option( '_wc_pricewaiter_api_user_status', 'ACTIVE' );
+
+            self::update_setup_complete_option();
 
             return true;
 
@@ -312,12 +315,44 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
                 break;
 
                 case "pw_api_key":
-                    return WC_PriceWaiter()->get_pricewaiter_setting('api_key');
+                    /**
+                     * Check if posting the api_key since this check is sometimes fired before
+                     * the api_key post data is actually saved as an option.
+                     */
+                    $is_being_configured = isset( $_POST['woocommerce_pricewaiter_api_key'] ) && 0 !== strlen( $_POST['woocommerce_pricewaiter_api_key'] );
+                    $is_already_set = WC_PriceWaiter()->get_pricewaiter_setting( 'api_key' ) ? true : false;
+                    return $is_being_configured || $is_already_set ? true : false;
                 break;
 
                 default:
                     return false;
             }
+        }
+
+        /**
+         * Performs a validation check and flags the setup_complete option.
+         * Calling this function when making changes to required settings will
+         * automatically detect and flag the setup_complete option as needed.
+         */
+        public static function update_setup_complete_option() {
+            $setup_complete = true;
+            $pw_settings = get_option( 'woocommerce_pricewaiter_settings' );
+
+            if ( !isset( $pw_settings['api_key'] ) ) {
+                $setup_complete = false;
+            }
+
+            if ( get_option( '_wc_pricewaiter_api_user_id' ) ) {
+                if ( 'ACTIVE' !== get_option( '_wc_pricewaiter_api_user_status' ) ) {
+                    $setup_complete = false;
+                }
+            } else {
+                $setup_complete = false;
+            }
+
+            $pw_settings['setup_complete'] = $setup_complete;
+
+            update_option( 'woocommerce_pricewaiter_settings', $pw_settings );
         }
 
         public static function load_setup_screen() {
