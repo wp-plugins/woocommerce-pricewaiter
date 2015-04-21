@@ -12,7 +12,7 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 	 * Assumes UA or GA is already installed on the site
 	 *
 	 * @class   WC_PriceWaiter_Analytics
-	 * @extends WC_Integration
+	 * @since 1.0
 	 */
 	class WC_PriceWaiter_Analytics {
 		protected $debug      = false;
