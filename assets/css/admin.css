@@ -10,7 +10,7 @@
     display: none;
 }
 
-.wc_pricewaiter_setup_defaults + .submit {
+.wc_pricewaiter_setup_defaults ~ .submit {
     display: none;
 }
 
