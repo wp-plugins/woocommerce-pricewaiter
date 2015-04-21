@@ -15,6 +15,7 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 	 * @extends WC_Integration
 	 */
 	class WC_PriceWaiter_Analytics {
+		protected $debug      = false;
 
 		/**
 		 * Init
@@ -28,6 +29,12 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 
 			// Tracking code
 			add_action( 'wp_footer', array( $this, 'pw_tracking_code_display' ), 999999 );
+
+			// Logging
+			if ( 'yes' === wc_pricewaiter()->get_pricewaiter_setting( 'debug' ) ) {
+				$this->debug = true;
+				$this->log   = new WC_Logger;
+			}
 
 		}
 
@@ -105,10 +112,10 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 				$code .= "'sku': '" . esc_js( $order['product_sku'] ) . "',";
 
 				// Variations
-				if ($order['product_option_count']) {
+				if ( isset($order['product_option_count']) ) {
 					$out = array();
 					for ($i = 0; $i < $order['product_option_count']; $i++) {
-						$out[] = $order['product_option_key_' . $i] . ':' . $order['product_option_value_' . $i];
+						$out[] = $order['product_option_name' . $i] . ':' . $order['product_option_value' . $i];
 					}
 					$code .= "'category': '" . esc_js( join( " / ", $out) ) . "',";
 				}
@@ -148,10 +155,10 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 				$code .= "'" . esc_js( $order['product_name'] ) . "',";
 
 				// Variations
-				if ($order['product_option_count']) {
+				if ( isset($order['product_option_count']) ) {
 					$out = array();
 					for ($i = 0; $i < $order['product_option_count']; $i++) {
-						$out[] = $order['product_option_key_' . $i] . ':' . $order['product_option_value_' . $i];
+						$out[] = $order['product_option_name' . $i] . ':' . $order['product_option_value' . $i];
 					}
 					$code .= "'" . esc_js( join( " / ", $out) ) . "',";
 				}
@@ -171,13 +178,15 @@ if (!class_exists( 'WC_PriceWaiter_Analytics' ) ) {
 <!-- /WooCommerce PriceWaiter Google Analytics E-Commerce Integration -->
 ";
 
-			// If it was a test order, make it OBVIOUS
-			/**
-			Fix once we're off staging!
-			**/
-			if ( true ) { //isset( $order['test'] ) && '1' === $order['test']) {
-				$output = "<p><strong>This was a test order!</strong> Your tracking code would look like so:</p><pre>" . htmlspecialchars( $output ) . "</pre>" ;
-				$output .= "<p><strong>Here's the data posted from PriceWaiter:</strong></p><pre>" . print_r( $order, true ) . "</pre>";
+			// Debug log
+			if ( $this->debug ) {
+				$this->log->add( "pricewaiter-analytics", "Tracking Output: \n" . $output );
+				$this->log->add( "pricewaiter-analytics", "PriceWaiter Post Data: \n" . print_r( $order, true ) );
+			}
+
+			// If it was a test order, don't do anyting
+			if ( isset( $order['test'] ) && '1' === $order['test'] ) {
+				return '';
 			}
 
 			return $output;
