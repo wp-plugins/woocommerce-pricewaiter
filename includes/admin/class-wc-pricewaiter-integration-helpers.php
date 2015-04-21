@@ -304,7 +304,11 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 
             switch ( $key ) {
                 case "wc_api_user":
-                    return get_option( '_wc_pricewaiter_api_user_id' );
+                    if ( get_option( '_wc_pricewaiter_api_user_id' ) ) {
+                        return get_option( '_wc_pricewaiter_api_user_status' ) == "ACTIVE" ? true : false;
+                    } else {
+                        return false;
+                    }
                 break;
 
                 case "pw_api_key":

@@ -95,6 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 					add_filter( 'woocommerce_api_product_response', array( $this, 'wc_product_api_inject_pricewaiter'), 10, 4 );
 				} else if ( is_admin() ) {
 					$this->notice_handler = new WC_PriceWaiter_Notice_Handler();
+					$this->api_user_monitor = new WC_PriceWaiter_API_User_Monitor();
 					$this->product_settings = new WC_PriceWaiter_Product_Settings();
 					add_filter( 'woocommerce_integrations', array( $this, 'add_pricewaiter_integration' ) );
 				}
@@ -120,6 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				require_once( 'includes/admin/class-wc-pricewaiter-product-settings.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-integration.php' );
 				require_once( 'includes/admin/class-wc-pricewaiter-integration-helpers.php' );
+				require_once( 'includes/admin/class-wc-pricewaiter-api-user-monitor.php' );
 			}
 
 			public function add_pricewaiter_integration( $integrations ) {
