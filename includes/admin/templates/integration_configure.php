@@ -45,8 +45,13 @@
 	<div id="wc_pricewaiter_setup_step_2" class="wc_pricewaiter_setup_step">
 		<div class="wc_pricewaiter_setup_step_num"><h3><span>2)</span> Create Your PriceWaiter Account</h3></div>
 		<div class="wc_pricewaiter_setup_step_content">
-			<p>Sign up for a <a href="<?php echo self::get_sign_up_url(null, array('tier' => 'free')); ?>&TB_iframe=true&width=600&height=550" class="thickbox">FREE</a> -or- <a href="<?php echo self::get_sign_up_url(null, array('tier' => 'premium')); ?>&TB_iframe=true&width=600&height=550" class="thickbox">Premium</a> PriceWaiter account to get started. Don't worry, it's quick and easy.</p>
-			<p>Not sure which one to pick? View our <a href="<?php echo self::get_sign_up_url('http://www.pricewaiter.com/pricing',array('new_signup' => 1)); ?>" target="_blank">plan comparision</a> page.</p>
+			<p><strong>Use one of these links to create your PriceWaiter account.</strong> (<em>They will help prefill some of your store settings</em>).
+			<p>
+				Sign up for a <a href="<?php echo self::get_sign_up_url(null, array('tier' => 'free')); ?>&TB_iframe=true&width=600&height=550" class="thickbox button-primary">FREE Account</a> or <a href="<?php echo self::get_sign_up_url(null, array('tier' => 'premium')); ?>&TB_iframe=true&width=600&height=550" class="thickbox button-primary">Premium Account</a> 
+				Not sure which one to pick? View our <a href="<?php echo self::get_sign_up_url('https://www.pricewaiter.com/pricing',array('new_signup' => 1)); ?>" target="_blank">plan comparision</a> page.
+			</p>
+			<hr>
+			<p>If you already have an account, just enter your store API key below and click "Save Changes".</p>
 		</div>
 	</div>
 	<?php endif; ?>
