@@ -136,7 +136,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 						if ( $product->is_type( 'simple' ) ) {
 							update_post_meta( $product->id, '_wc_pricewaiter_cost', get_post_meta( $product->id, $this->cost_plugin['simple'], true ) );
 						}elseif($product->is_type( 'variable' ) ){
-							update_post_meta( $product->id, '_wc_pricewaiter_variable_cost', get_post_meta( $product->id, $this->cost_plugin['variable'], true ) );
+							update_post_meta( $product->id, '_wc_pricewaiter_cost', get_post_meta( $product->id, $this->cost_plugin['variable'], true ) );
 						}
 						$update_count++;
 					}
@@ -458,7 +458,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	}
 	public function save_variable_product_cost_to_pricewaiter( $post_id ) {
 		$default_cost = stripcslashes( $_POST[$this->cost_plugin['variable']] );
-		update_post_meta( $post_id, '_wc_pricewaiter_cost_variable', $default_cost );
+		update_post_meta( $post_id, '_wc_pricewaiter_cost', $default_cost );
 	}
 	public function save_product_variation_cost_to_pricewaiter( $variation_id ) {
 		$default_cost = stripcslashes( $_POST[$this->cost_plugin['variable']] );
