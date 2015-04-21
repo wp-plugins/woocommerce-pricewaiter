@@ -13,10 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 
 // Minimum supported version of WooCommerce
-$wc_minimum_version = '2.2.0';
+// $wc_minimum_version = '2.2.0';
 
-// Standard check if WooCommerce is active
-if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/**
 	* New PriceWaiter
 	*/
@@ -25,6 +23,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			const VERSION = "0.0.1";
 			const PLUGIN_ID = 'pw';
 			const TEXT_DOMAIN = 'woocommerce-pricewaiter';
+			public $wc_minimum_version = '2.2.0';
 			/**
 			* Main array key is the plugins primary class.
 			* The class is checked to see if plugin is active.
@@ -65,9 +64,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 				// We version_compare() after plugins_loaded()
 				// to make sure we have access to WC()->version
-				if ( 0 > version_compare( WC()->version, $wc_minimum_version ) ) {
+				if ( !class_exists( 'WooCommerce' ) ) {
+					// WooCommerce not active
+					add_action( 'admin_notices' , array( $this, 'alert_woocommerce_required' ) );
+					return;
+				}
+				if ( version_compare( WC()->version, $this->wc_minimum_version, '<' ) ) {
 					// Unsupported version
-					add_action( 'admin_notices' , array($this, 'alert_woocommerce_minimum_version') );
+					add_action( 'admin_notices' , array( $this, 'alert_woocommerce_minimum_version' ) );
 					return;
 				}
 
@@ -165,16 +169,26 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 
 			/**
+			* Notify Admin WooCommerce plugin is required
+			*/
+			function alert_woocommerce_required() {
+				?>
+					<div class="error">
+						<h3><?php _e( 'WooCommerce required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h2>
+						<p><?php printf( __( 'WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.', WC_PriceWaiter::TEXT_DOMAIN) , $this->wc_minimum_version ); ?></p>
+						<p><a href="http://www.woothemes.com/woocommerce/"><?php _e( 'Install WooCommerce to get started.', WC_PriceWaiter::TEXT_DOMAIN ); ?></a></p>
+					</div>
+				<?
+			}
+			/**
 			* Notify Admin to update WooCommerce to minimum version
 			*/
 			public function alert_woocommerce_minimum_version(){
-				global $wc_minimum_version;
-
 				?>
 					<div class="error">
 						<h3><?php _e( 'WooCommerce update required to continue.', WC_PriceWaiter::TEXT_DOMAIN ); ?></h3>
 						<p><?php printf( __( "It appears you're currently using WooCommerce v%s", WC_PriceWaiter::TEXT_DOMAIN ), WC()->version ); ?></p>
-						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $wc_minimum_version); ?></p>
+						<p><?php printf( __( "WooCommerce v%s or higher is required to use the WooCommerce PriceWaiter plugin.", WC_PriceWaiter::TEXT_DOMAIN ), $this->wc_minimum_version); ?></p>
 					</div>
 				<?php
 			}
@@ -189,20 +203,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 		$GLOBALS['wc_pricewaiter'] = wc_pricewaiter();
 	}
-} else {
-	function alert_woocommerce_required() {
-		global $wc_minimum_version;
-
-		?>
-			<div class="error">
-				<h3>WooCommerce required to continue.</h2>
-				<p><?php echo 'WooCommerce v' . $wc_minimum_version . ' or higher is required to use the WooCommerce PriceWaiter plugin.'; ?></p>
-				<p><a href="http://www.woothemes.com/woocommerce/">Install WooCommerce to get started.</a></p>
-			</div>
-		<?php
-	}
-	add_action( 'admin_notices', 'alert_woocommerce_required' );
-}
 
 /**
 * This should only fire once after activation
