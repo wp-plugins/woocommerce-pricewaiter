@@ -28,16 +28,13 @@ class WC_PriceWaiter_API_Ipn {
      */
     public function __construct() {
 
-        // Actions
-        add_action( 'pricewaiter_ipn_success', array( $this, 'successful_request' ) );
-
         // Payment listener/API hook
         add_action( 'woocommerce_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
 
     }
 
     /**
-     * Check PayPal IPN validity
+     * Check PriceWaiter IPN validity
      **/
     public function check_ipn_request_is_valid( $ipn_response ) {
 
@@ -47,7 +44,7 @@ class WC_PriceWaiter_API_Ipn {
         // Get received values from post data
         $validate_ipn = stripslashes_deep( $ipn_response );
 
-        // Send back post vars to paypal
+        // Send back post vars to PriceWaiter
         $params = array(
             'body'          => $validate_ipn,
             'sslverify'     => false,
@@ -82,11 +79,11 @@ class WC_PriceWaiter_API_Ipn {
 
             header( 'HTTP/1.1 200 OK' );
 
-            do_action( "pricewaiter_ipn_success", $ipn_response );
+            $this->successful_request( $ipn_response );
 
         } else {
 
-            wp_die( "PriceWaiter IPN Request Failure", "PriceWaiter IPN", array( 'response' => 200 ) );
+            wp_die( "PriceWaiter IPN Request Failure", "PriceWaiter IPN", array( 'response' => 404 ) );
 
         }
 
@@ -106,41 +103,8 @@ class WC_PriceWaiter_API_Ipn {
 
             // Check if this order was already created. Bail if it was
             if ( $this->order_already_exists( $posted['pricewaiter_id'] ) ) {
-                wp_die( "PriceWaiter Order Already Exists - {$posted[pricewaiter_id]}", "PriceWaiter IPN", array( 'response' => 200 ) );
+                wp_die( "PriceWaiter Order Already Exists - {$posted[pricewaiter_id]}", "PriceWaiter IPN", array( 'response' => 409 ) );
             }
-
-
-            // Check if the customer has an account
-            $customer = get_user_by( 'email', $posted['buyer_email'] );
-
-            // Create the order
-            $address_billing = array(
-                'first_name' => $posted['buyer_billing_first_name'],
-                'last_name'  => $posted['buyer_billing_last_name'],
-                //'company'    => 'WooThemes',
-                'email'      => $posted['buyer_email'],
-                'phone'      => $posted['buyer_billing_phone'],
-                'address_1'  => $posted['buyer_billing_address'],
-                'address_2'  => $posted['buyer_billing_address2'] . ' ' . $posted['buyer_billing_address3'], 
-                'city'       => $posted['buyer_billing_city'],
-                'state'      => $posted['buyer_billing_state'],
-                'postcode'   => $posted['buyer_billing_zip'],
-                'country'    => $posted['buyer_billing_country']
-            );
-
-            $address_shipping = array(
-                'first_name' => $posted['buyer_shipping_first_name'],
-                'last_name'  => $posted['buyer_shipping_last_name'],
-                //'company'    => 'WooThemes',
-                //'email'      => $posted['buyer_email'],
-                'phone'      => $posted['buyer_shipping_phone'],
-                'address_1'  => $posted['buyer_shipping_address'],
-                'address_2'  => $posted['buyer_shipping_address2'] . ' ' . $posted['buyer_shipping_address3'], 
-                'city'       => $posted['buyer_shipping_city'],
-                'state'      => $posted['buyer_shipping_state'],
-                'postcode'   => $posted['buyer_shipping_zip'],
-                'country'    => $posted['buyer_shipping_country']
-            );
 
 
             // Create the order record
@@ -208,22 +172,49 @@ class WC_PriceWaiter_API_Ipn {
             }
 
 
+            // Check if the customer has an account
+            $customer = get_user_by( 'email', $posted['buyer_email'] );
+
+            // Create the order
+            $address_billing = array(
+                'first_name' => $posted['buyer_billing_first_name'],
+                'last_name'  => $posted['buyer_billing_last_name'],
+                //'company'    => 'WooThemes',
+                'email'      => $posted['buyer_email'],
+                'phone'      => $posted['buyer_billing_phone'],
+                'address_1'  => $posted['buyer_billing_address'],
+                'address_2'  => trim($posted['buyer_billing_address2'] . ' ' . $posted['buyer_billing_address3']), 
+                'city'       => $posted['buyer_billing_city'],
+                'state'      => $posted['buyer_billing_state'],
+                'postcode'   => $posted['buyer_billing_zip'],
+                'country'    => $posted['buyer_billing_country']
+            );
+
+            $address_shipping = array(
+                'first_name' => $posted['buyer_shipping_first_name'],
+                'last_name'  => $posted['buyer_shipping_last_name'],
+                //'company'    => 'WooThemes',
+                //'email'      => $posted['buyer_email'],
+                'phone'      => $posted['buyer_shipping_phone'],
+                'address_1'  => $posted['buyer_shipping_address'],
+                'address_2'  => trim($posted['buyer_shipping_address2'] . ' ' . $posted['buyer_shipping_address3']), 
+                'city'       => $posted['buyer_shipping_city'],
+                'state'      => $posted['buyer_shipping_state'],
+                'postcode'   => $posted['buyer_shipping_zip'],
+                'country'    => $posted['buyer_shipping_country']
+            );
+
+
             // Handle customer data
             $order->set_address( $address_billing, 'billing' );
             $order->set_address( $address_shipping, 'shipping' );
 
 
             // Handle totals rows
-            // - 'tax' seems to be buggy.
-            // - Available types - 'shipping', 'order_discount', 'tax', 'shipping_tax', 'total', 'cart_discount'
-
-            # $order->set_total( $posted['tax'], 'tax' ); // Not sure this is necessary
             $order->set_total( 0, 'shipping_tax' );
             $order->set_total( $posted['shipping'], 'shipping' );
-
             $order->set_total( 0, 'cart_discount' );
             $order->set_total( 0, 'order_discount' );
-
             $order->set_total( $posted['total'], 'total' );
 
 
