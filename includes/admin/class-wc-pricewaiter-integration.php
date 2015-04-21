@@ -75,10 +75,8 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		/**
 		*	Add PriceWaiter setting fields to products
 		*/
-		// add PriceWaiter Disable field to simple products under 'General' tab
-		add_action( 'woocommerce_product_options_pricing', array( $this, 'add_pricewaiter_fields_to_simple_product' ) );
-		// add PriceWaiter Disable field to variable products under 'General' tab
-		add_action( 'woocommerce_product_options_sku', array( $this, 'add_pricewaiter_fields_to_variable_product' ) );
+		// add PriceWaiter Disable field to products under 'General' tab
+		add_action( 'woocommerce_product_options_sku', array( $this, 'add_pricewaiter_fields_to_product' ) );
 		
 		// save PriceWaiter fields on products
 		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product_pricewaiter' ), 10, 2 );
@@ -321,29 +319,15 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 	}
 
 	/**
-	* 	Create checkbox on simple product in the 'General' tab
+	* 	Create checkbox on variable product in the 'General' tab
 	*	to toggle the PriceWaiter button on the product page
 	*/
-	public function add_pricewaiter_fields_to_simple_product() {
+	public function add_pricewaiter_fields_to_product() {
 		woocommerce_wp_checkbox(
 			array(
 				'id'				=> '_wc_pricewaiter_disabled',
 				'class'				=> 'checkbox',
-				'label'				=> __( 'Disable PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN )
-			)
-		);
-	}
-	/**
-	* 	Create checkbox on variable product in the 'General' tab
-	*	to toggle the PriceWaiter button on the product page
-	*/
-	public function add_pricewaiter_fields_to_variable_product() {
-		woocommerce_wp_checkbox(
-			array(
-				'id'				=> '_wc_pricewaiter_disabled_variable',
-				'class'				=> 'checkbox',
-				'wrapper_class'		=> 'show_if_variable',
+				'wrapper_class'		=> 'show_if_variable show_if_simple',
 				'label'				=> __( 'Disable PriceWaiter', WC_PriceWaiter::TEXT_DOMAIN ),
 				'description'		=> __( 'Hide PriceWaiter button for this product', WC_PriceWaiter::TEXT_DOMAIN ),
 
@@ -357,9 +341,6 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		// Update checkbox for disabling PriceWaiter button
 		$checkbox_disabled = isset( $_POST['_wc_pricewaiter_disabled'] ) ? 'yes' : 'no';
 		update_post_meta( $post_id, '_wc_pricewaiter_disabled', $checkbox_disabled );
-
-		$checkbox_disabled_variable = isset( $_POST['_wc_pricewaiter_disabled_variable'] ) ? 'yes' : 'no';
-		update_post_meta( $post_id, '_wc_pricewaiter_disabled_variable', $checkbox_disabled_variable );
 	}
 
 

@@ -38,13 +38,8 @@ class WC_PriceWaiter_Product {
 	*/
 	public static function can_add_pricewaiter( $product ) {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
-		if( $product->is_type( 'variable' ) ) {
-			$pricewaiter_disabled_metakey = '_wc_pricewaiter_disabled_variable';
-		}else {
-			$pricewaiter_disabled_metakey = '_wc_pricewaiter_disabled';
-		}
 
-		$pricewaiter_disabled = get_post_meta( $product->id, $pricewaiter_disabled_metakey, true ) == 'yes' ? true : false;
+		$pricewaiter_disabled = get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? true : false;
 
 		// Allow override on whether PriceWaiter can be used for the current product
 		$pricewaiter_disabled = apply_filters( 'pw_product_disable_pricewaiter', $pricewaiter_disabled, $product );
