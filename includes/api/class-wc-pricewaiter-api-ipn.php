@@ -154,13 +154,13 @@ class WC_PriceWaiter_API_Ipn {
 			}
 
 			// Handle product line items
-			$product = get_product( $posted['product_sku'] );
+			$product = get_product( $posted['metadata__wc_post_id'] );
 			$quantity = $posted['quantity'];
 
 			// Variable Products
 			$variant_attributes = array();
 			if ( $product->variation_id ) {
-				$variant = new WC_Product_Variation( $posted['product_sku'] );
+				$variant = new WC_Product_Variation( $posted['metadata__wc_post_id'] );
 				$variant_attributes = $variant->get_variation_attributes();
 			}
 
