@@ -234,9 +234,12 @@ class WC_PriceWaiter_API_Ipn {
 
             // Custom PriceWaiter order meta
             update_post_meta( $order->id, '_pw_pricewaiter_id', $posted['pricewaiter_id'] );
-            update_post_meta( $order->id, '_pw_transaction_id', $posted['transaction_id'] );
             update_post_meta( $order->id, '_pw_payment_method', $posted['payment_method'] );
 
+            // Set the transaction id as the one PriceWaiter got from the processor
+            update_post_meta( $order->id, '_transaction_id', $posted['transaction_id'] );
+
+            // Set PriceWaiter as the payment method
             update_post_meta( $order->id, '_payment_method', 'PriceWaiter (' . $posted['payment_method'] . ')' );
             update_post_meta( $order->id, '_payment_method_title', 'PriceWaiter' );
 
