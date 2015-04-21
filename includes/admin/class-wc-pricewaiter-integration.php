@@ -242,11 +242,11 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		);
 		woocommerce_wp_checkbox(
 			array(
-				'id'				=> '_wc_pricewaiter_conversion_tools',
+				'id'				=> '_wc_pricewaiter_conversion_tools_disabled',
 				'class'				=> 'checkbox',
 				'wrapper_class'		=> $wrapper_class_string,
-				'label'				=> __( 'Enable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Turns on your conversion tool set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
+				'label'				=> __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'		=> __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
 
 			)
 		);
@@ -260,8 +260,8 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		update_post_meta( $post_id, '_wc_pricewaiter_disabled', $checkbox_disabled );
 		
 		// Update checkbox for enabled Conversion Tools
-		$checkbox_conversion = isset( $_POST['_wc_pricewaiter_conversion_tools'] ) ? 'yes' : 'no';
-		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools', $checkbox_conversion );
+		$checkbox_conversion = isset( $_POST['_wc_pricewaiter_conversion_tools_disabled'] ) ? 'yes' : 'no';
+		update_post_meta( $post_id, '_wc_pricewaiter_conversion_tools_disabled', $checkbox_conversion );
 	}
 
 
@@ -377,7 +377,7 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 		$product_data['pricewaiter'] = array(
 			'cost'				=> get_post_meta( $product->id, $this->cost_plugin[$cost_field], true ),
 			'button'			=> get_post_meta( $product->id, '_wc_pricewaiter_disabled', true ) == 'yes' ? false : true,
-			'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools', true ) == 'yes' ? true : false
+			'conversion_tools'	=> get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true
 		);
 		return $product_data;
 	}

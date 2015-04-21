@@ -60,7 +60,7 @@ class WC_PriceWaiter_Product {
 	public static function is_using_conversion_tools( $product ) {
 		$product = is_numeric( $product ) ? wc_get_product( $product ) : $product;
 
-		$conversion_tools_enabled = get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools', true ) == 'yes' ? true : false;
+		$conversion_tools_enabled = get_post_meta( $product->id, '_wc_pricewaiter_conversion_tools_disabled', true ) == 'yes' ? false : true;
 
 		// Allow override on whether PriceWaiter is using Conversion Tools for the current product
 		$conversion_tools_enabled = apply_filters( 'pw_product_conversion_tools', $conversion_tools_enabled, $product );
