@@ -82,7 +82,9 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 				'title'				=> __( 'Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'checkbox',
 				'label'				=> __( 'Enable Debug Log', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN )
+				'description'		=> __( 'Enable logging of debug data', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'			=> true,
+				'default' 			=> false
 			)
 		);
 	}

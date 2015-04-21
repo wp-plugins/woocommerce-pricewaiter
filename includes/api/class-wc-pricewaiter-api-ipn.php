@@ -22,6 +22,8 @@ class WC_PriceWaiter_API_Ipn {
     /** @var string $endpoint the IPN endpoint */
     protected $endpoint = 'https://api.pricewaiter.com/order/verify';
 
+    protected $debug = false;
+
     /**
      * Setup class
      */
@@ -29,7 +31,11 @@ class WC_PriceWaiter_API_Ipn {
         // Payment listener/API hook
         add_action( 'wc_pricewaiter_api_ipn', array( $this, 'check_ipn_response' ) );
 
-        $this->log = new WC_Logger;
+        // Logging
+        if ( 'yes' === wc_pricewaiter()->get_pricewaiter_setting( 'debug' ) ) {
+            $this->debug = true;
+            $this->log = new WC_Logger;
+        }
     }
 
     /**
@@ -39,9 +45,11 @@ class WC_PriceWaiter_API_Ipn {
         // Allow custom endpoint for dev
         $this->endpoint = apply_filters( 'wc_pricewaiter_ipn_endpoint', $this->endpoint );
 
-        $this->log->add( 'pricewaiter-ipn', 'NEW IPN REQUEST ' . date('Y-m-d h:i:s') . ' -----------------------------------' );
-        $this->log->add( 'pricewaiter-ipn', 'IPN Endpoint: ' . $this->endpoint );
-        $this->log->add( "pricewaiter-ipn", "PriceWaiter Post Data: \n" . print_r( $ipn_response, true ) );
+        if ( $this->debug ) {
+            $this->log->add( 'pricewaiter-ipn', 'NEW IPN REQUEST ' . date('Y-m-d h:i:s') . ' -----------------------------------' );
+            $this->log->add( 'pricewaiter-ipn', 'IPN Endpoint: ' . $this->endpoint );
+            $this->log->add( "pricewaiter-ipn", "PriceWaiter Post Data: \n" . print_r( $ipn_response, true ) );
+        }
 
         // Get received values from post data
         $validate_ipn = $ipn_response; // stripslashes_deep( $ipn_response );
@@ -66,8 +74,10 @@ class WC_PriceWaiter_API_Ipn {
             return true;
         }
 
-        $this->log->add( "pricewaiter-ipn", "IPN Failed. WooCommerce Post Data: \n" . print_r( $params['body'], true ) );
-        $this->log->add( "pricewaiter-ipn", "IPN Failed. PriceWaiter Response Data: \n" . print_r( $response, true ) );
+        if ( $this->debug ) {
+            $this->log->add( "pricewaiter-ipn", "IPN Failed. WooCommerce Post Data: \n" . print_r( $params['body'], true ) );
+            $this->log->add( "pricewaiter-ipn", "IPN Failed. PriceWaiter Response Data: \n" . print_r( $response, true ) );
+        }
 
         return false;
     }
@@ -84,7 +94,9 @@ class WC_PriceWaiter_API_Ipn {
 
             header( 'HTTP/1.1 200 OK' );
 
-            $this->log->add( 'pricewaiter-ipn', 'Valid IPN Request.' );
+            if ( $this->debug ) {
+                $this->log->add( 'pricewaiter-ipn', 'Valid IPN Request.' );
+            }
 
             $this->successful_request( $ipn_response );
 
@@ -108,7 +120,10 @@ class WC_PriceWaiter_API_Ipn {
 
             // Check if this order was already created. Bail if it was
             if ( $this->order_already_exists( $posted['pricewaiter_id'] ) ) {
-                $this->log->add( 'pricewaiter-ipn', 'Order Already Exists. PriceWaiter ID#: ' . $posted['pricewaiter_id'] );
+                if ( $this->debug ) {
+                    $this->log->add( 'pricewaiter-ipn', 'Order Already Exists. PriceWaiter ID#: ' . $posted['pricewaiter_id'] );
+                }
+
                 wp_die( "PriceWaiter Order Already Exists - {$posted['pricewaiter_id']}", "PriceWaiter IPN", array( 'response' => 409 ) );
             }
 
