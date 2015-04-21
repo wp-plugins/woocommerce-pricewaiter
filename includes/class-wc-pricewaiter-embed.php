@@ -67,12 +67,14 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			do_action( 'woocommerce-pricewaiter-before-button' );
 			?>
-			<span id="pricewaiter"></span>
+			<div id="pricewaiter_button_wrap" class="pricewaiter_button_wrap">
+				<span id="pricewaiter"></span>
+			</div>
 			<script>
 				var PriceWaiterOptions = {};
 				(function(document, window, $, undefined){
 					<?php if ( $product->has_child() ): ?>
-					$('#pricewaiter').appendTo('.single_variation_wrap');
+					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
 					
 					<?php endif; ?>
