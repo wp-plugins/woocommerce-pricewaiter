@@ -130,4 +130,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 function wc_pricewaiter_activated() {
 	flush_rewrite_rules();
 }
+function wc_pricewaiter_deactivated() {
+	flush_rewrite_rules();
+}
 register_activation_hook( __FILE__, 'wc_pricewaiter_activated' );
+register_activation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
