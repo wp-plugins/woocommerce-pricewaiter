@@ -41,7 +41,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				}
 			}
 
-			public function add_pw_integration() {
+			public function add_pw_integration( $integrations ) {
 				$integrations[] = 'WC_PriceWaiter_Integration';
 				return $integrations;
 			}
