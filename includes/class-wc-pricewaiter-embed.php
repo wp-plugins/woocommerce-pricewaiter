@@ -69,7 +69,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 				var PriceWaiterOptions = {};
 				(function(document, window, $, undefined){
 					<?php if ( $product->is_type( 'variable' ) ): ?>
-					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap');
+					$('#pricewaiter_button_wrap').appendTo('.single_variation_wrap .variations_button');
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
 					var variation_meta = <?php echo json_encode( $variation_meta ); ?>;
 					<?php endif; ?>
