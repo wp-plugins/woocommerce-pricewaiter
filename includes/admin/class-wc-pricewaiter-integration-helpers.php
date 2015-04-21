@@ -66,7 +66,7 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
         public static function get_sign_up_token() {
             // get wc_pricewaiter_sign_up_token option
             $token = get_option( 'wc_pricewaiter_sign_up_token' );
-            if ( $token ) {
+            if ( $token && !empty( $token ) ) {
                 return $token;
             }
 
@@ -95,11 +95,15 @@ if (!class_exists( 'WC_PriceWaiter_Integration_Helpers' ) ):
 
             $response = curl_exec( $ch );
 
-            if ( empty( $response ) ) {
+            curl_close( $ch );
+
+            $response = json_decode( $response );
+
+            if ( !isset( $response->body->token ) ) {
+                // no token returned
                 return false;
             }
 
-            $response = json_decode( $response );
             $token = $response->body->token;
 
             update_option( 'wc_pricewaiter_sign_up_token', $token );
