@@ -243,7 +243,7 @@ register_deactivation_hook( __FILE__, 'wc_pricewaiter_deactivated' );
 /**
  ! STAGING VERSION
  */
-function pw_staging_pricewaiter_ipn_endpoint( $url ) {
+function pw_staging_ipn_endpoint( $url ) {
     return 'https://api-staging.pricewaiter.com/order/verify';
 }
 add_filter('wc_pricewaiter_ipn_endpoint', 'pw_staging_ipn_endpoint');
