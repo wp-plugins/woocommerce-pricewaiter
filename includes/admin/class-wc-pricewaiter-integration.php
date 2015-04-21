@@ -57,6 +57,17 @@ class WC_PriceWaiter_Integration extends WC_Integration {
 
 		// conditionally show fields that depend on API key existing.
 		if( $api_key ) {
+			$this->form_fields['ecommerce_tracking'] = array(
+				'title'				=> __( 'eCommerce Tracking', WC_PriceWaiter::TEXT_DOMAIN ),
+				'type'				=> 'select',
+				'options'  => array(
+					''              => __( 'Disabled', WC_PriceWaiter::TEXT_DOMAIN ),
+					'ua' 			=> __( 'Univeral Analtyics', WC_PriceWaiter::TEXT_DOMAIN ),
+					'ga'          	=> __( 'Classic Google Analytics', WC_PriceWaiter::TEXT_DOMAIN ),
+				),
+				'description' 		=> __( 'Track PriceWaiter transactions with Google analytics eCommerce tracking. Assumes you have UA or GA already installed.', WC_PriceWaiter::TEXT_DOMAIN ),
+				'desc_tip'			=> true
+			);
 			$this->form_fields['customize_button'] = array(
 				'title'				=> __( 'Customize Button', WC_PriceWaiter::TEXT_DOMAIN ),
 				'type'				=> 'button_link',

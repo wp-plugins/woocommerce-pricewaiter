@@ -112,6 +112,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				include_once( 'includes/class-wc-pricewaiter-api.php' );
 				require_once( 'includes/class-wc-pricewaiter-product.php' );
 				require_once( 'includes/class-wc-pricewaiter-embed.php' );
+				require_once( 'includes/class-wc-pricewaiter-analytics.php' );
+
+				$this->analytics = new WC_PriceWaiter_Analytics;
 
 				if ( is_admin() ) {
 					$this->admin_includes();
