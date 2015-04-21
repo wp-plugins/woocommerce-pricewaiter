@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) { 
+if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
@@ -39,7 +39,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 
 			return false;
 		}
-		
+
 		public function embed_code() {
 			global $product, $woocommerce, $current_user;
 
@@ -74,7 +74,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					var variation_data = <?php echo json_encode( $variation_data ); ?>;
 					var variation_meta = <?php echo json_encode( $variation_meta ); ?>;
 					<?php endif; ?>
-				
+
 					PriceWaiterOptions.product 		= <?php echo json_encode( $product_data ); ?>;
 					PriceWaiterOptions.currency 	= '<?php echo get_woocommerce_currency(); ?>';
 					PriceWaiterOptions.addToPage	= <?php echo WC_PriceWaiter_Product::can_add_pricewaiter($product); ?>;
@@ -85,7 +85,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 					};
 					PriceWaiterOptions.hide_quantity_field = <?php echo $product->is_sold_individually() ? 'true' : 'false'; ?>;
 					PriceWaiterOptions.metadata = {
-					<?php 
+					<?php
 						foreach ( $product_meta as $key => $value ) {
 							echo '"' . $key . '": "' . $value . '",';
 						}
@@ -124,7 +124,7 @@ if (!class_exists( 'WC_PriceWaiter_Embed' ) ):
 		}
 
 		public function widget_scripts() {
-			$widget_script_url = apply_filters( 'wc_pricewaiter_widget_script_url', 'https://widget.pricewaiter.com/script/' . $this->api_key .'.js' );
+			$widget_script_url = apply_filters( 'wc_pricewaiter_widget_script_url', 'https://widget.pricewaiter.com/script/' ) . $this->api_key . '.js';
 			echo '<script src="' . $widget_script_url . '" async></script>';
 		}
 
