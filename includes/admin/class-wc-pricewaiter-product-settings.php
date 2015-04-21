@@ -39,7 +39,7 @@ class WC_PriceWaiter_Product_Settings {
 				'class'         => 'checkbox',
 				'wrapper_class' => $wrapper_class_string,
 				'label'         => __( 'Disable Conversion Tools', WC_PriceWaiter::TEXT_DOMAIN ),
-				'description'   => __( 'Turns off conversion tools set in your PricecWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
+				'description'   => __( 'Turns off conversion tools set in your PriceWaiter dashboard', WC_PriceWaiter::TEXT_DOMAIN ),
 			)
 		);
 	}
