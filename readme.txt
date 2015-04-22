@@ -1,6 +1,6 @@
 === PriceWaiter for WooCommerce ===
-Contributors: mattbain, Curtis Lawrence, Matt Hinz
-Tags: eCommerce, pricing, woocommerce
+Contributors: pricewaiter, mattbain, curtisl, mthnz
+Tags: commerce, ecommerce, e-commerce, conversion, store, shop, sales, pricing, woocommerce, lead capture,
 Requires at least: 4.0
 Tested up to: 4.1.1
 Stable tag: 1.0
@@ -15,12 +15,13 @@ __Why PriceWaiter?__
 
 PriceWaiter® lets customers make offers on products you sell -- offers you can accept, reject or counter. The widget embeds a configurable Name Your Price -or- Make an Offer button on product pages in your WooCommerce storefront. Simply install the plugin and you’ll have full control over PriceWaiter in your WooCommerce admin panel.
 
-* Engage your store's visitors
+* Engage more visitors
 * Convert comparision shoppers
+* Make M.A.P. moot
 * Increase conversion rates
-* Negate MAP regulations
+* Sell more
 
-For more information visit our [WooCommerce Integration Page](https://www.pricewaiter.com/integrations/woocommerce/) or [WooCommerce Docs Page](https://docs.pricewaiter.com/platforms/woocommerce.html).
+For more information visit our [WooCommerce Integration Page](https://www.pricewaiter.com/integrations/woocommerce/?utm_source=wp-plugins&utm_medium=website&utm_campaign=integration) or [WooCommerce Docs Page](https://docs.pricewaiter.com/platforms/woocommerce.html?utm_source=wp-plugins&utm_medium=website&utm_campaign=integration).
 
 == Installation ==
 
@@ -48,7 +49,7 @@ You can change your button style in you stores PriceWaiter account. There is a "
 
 = What is "disable conversion tools"? =
 
-Conversion tools are customizeable and configurable ways to help you sell more. [Exit Intent Offers](https://www.pricewaiter.com/feature/exit-intent-offers/) is one of our leading conversion boosting tools.
+Conversion tools are customizeable and configurable ways to help you sell more. [Exit Intent Offers](https://www.pricewaiter.com/feature/exit-intent-offers/?utm_source=wp-plugins&utm_medium=website&utm_campaign=integration) is one of our leading conversion boosting tools.
 
 = Why does PriceWaiter need API access? =
 
