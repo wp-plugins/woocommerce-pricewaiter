@@ -1,4 +1,4 @@
-=== WooCommerce PriceWaiter ===
+=== PriceWaiter for WooCommerce ===
 Contributors: mattbain, Curtis Lawrence, Matt Hinz
 Tags: eCommerce, pricing, woocommerce
 Requires at least: 4.0
